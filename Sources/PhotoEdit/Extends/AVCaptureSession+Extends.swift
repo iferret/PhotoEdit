@@ -94,4 +94,5 @@ extension CompatibleWrapper where Base: AVCaptureSession {
     internal func contains(_ output: AVCaptureOutput) -> Bool {
         return base.outputs.contains(output)
     }
+    
 }

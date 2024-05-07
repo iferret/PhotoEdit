@@ -28,8 +28,8 @@ class PEVideoPreviewView: UIView {
     
     /// UIVisualEffectView
     private lazy var effectView: UIVisualEffectView = {
-        let _effectView: UIVisualEffectView = .init(effect: .none)
-        _effectView.isHidden = true
+        let _effectView: UIVisualEffectView = .init(effect: UIBlurEffect.init(style: .dark))
+        _effectView.alpha = 0.0
         return _effectView
     }()
     
@@ -64,25 +64,17 @@ extension PEVideoPreviewView {
     }
     
     /// blured
-    /// - Parameters:
-    ///   - duration: TimeInterval
-    ///   - curve: UIView.AnimationCurve
-    internal func blured(duration: TimeInterval = 0.15, curve: UIView.AnimationCurve = .linear) {
-        UIViewPropertyAnimator.init(duration: duration, curve: .linear) {
-            self.effectView.isHidden = false
-            self.effectView.effect = UIBlurEffect(style: .dark)
-        }.startAnimation()
+    internal func blured() {
+        UIView.animate(withDuration: 0.25) {
+            self.effectView.alpha = 1.0
+        }
     }
     
     /// unblured
-    /// - Parameters:
-    ///   - duration: TimeInterval
-    ///   - curve: UIView.AnimationCurve
-    internal func unblured(duration: TimeInterval = 0.15, curve: UIView.AnimationCurve = .linear) {
-        UIViewPropertyAnimator.init(duration: duration, curve: curve) {
-            self.effectView.effect = .none
-            self.effectView.isHidden = true
-        }.startAnimation()
+    internal func unblured() {
+        UIView.animate(withDuration: 0.25) {
+            self.effectView.alpha = 0.0
+        }
     }
 }
 

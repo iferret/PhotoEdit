@@ -25,7 +25,8 @@ class PECameraViewController: UIViewController {
     /// PEVideoPreviewView
     private lazy var previewView: PEVideoPreviewView = {
         let _previewView: PEVideoPreviewView = .init(session: session)
-        _previewView.backgroundColor = .random
+        _previewView.backgroundColor = .hex("#000000")
+        _previewView.videoGravity = .resizeAspectFill
         return _previewView
     }()
     
@@ -38,8 +39,9 @@ class PECameraViewController: UIViewController {
     
     /// PEPresetView
     private lazy var presetView: PEPresetView = {
-        let _presetView: PEPresetView = .init(frame: .zero)
-        _presetView.backgroundColor = .random
+        let _presetView: PEPresetView = .init(items: [.video, .photo])
+        _presetView.backgroundColor = .clear
+        _presetView.delegate = self
         return _presetView
     }()
     
@@ -80,9 +82,6 @@ class PECameraViewController: UIViewController {
     
     /// PEMediaType
     private var mediaType: PEMediaType = .photo
-    
-    /// CGFloat
-    private var ratio: CGFloat { session.sessionPreset == .photo ? (3.0 / 4.0) : (9.0 / 16.0) }
     
     /// Optional<AVCaptureDeviceInput>
     private var videoInput: Optional<AVCaptureDeviceInput> = .none
@@ -151,7 +150,7 @@ extension PECameraViewController {
         view.addSubview(previewView)
         previewView.snp.makeConstraints {
             $0.left.right.top.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(view.safeAreaLayoutGuide.snp.width).dividedBy(ratio)
+            $0.height.equalTo(view.bounds.width * (4.0 / 3.0))
         }
         
         view.addSubview(lineView)
@@ -355,6 +354,51 @@ extension PECameraViewController {
             session.commitConfiguration()
         }
         
+    }
+    
+}
+
+// MARK: - PEPresetViewDelegate
+extension PECameraViewController: PEPresetViewDelegate {
+    
+    /// selectedActionHandler
+    /// - Parameters:
+    ///   - presetView: PEPresetView
+    ///   - sender: PEPresetItem
+    internal func presetView(_ presetView: PEPresetView, selectedActionHandler sender: PEPresetItem) {
+        switch sender {
+        case .video where session.sessionPreset == .photo && session.canSetSessionPreset(.hd1920x1080) == true:
+            DispatchQueue.global().async {[weak self] in
+                guard let this = self else { return }
+                this.session.beginConfiguration()
+                this.session.sessionPreset = .hd1920x1080
+                this.session.commitConfiguration()
+                DispatchQueue.main.async {[weak this] in
+                    guard let this = this else { return }
+                    this.previewView.snp.updateConstraints {
+                        $0.height.equalTo(this.view.bounds.width * (16.0 / 9.0))
+                    }
+                    this.view.layoutIfNeeded()
+                }
+            }
+            
+        case .photo where session.sessionPreset == .hd1920x1080:
+            DispatchQueue.global().async {[weak self] in
+                guard let this = self else { return }
+                this.session.beginConfiguration()
+                this.session.sessionPreset = .photo
+                this.session.commitConfiguration()
+                DispatchQueue.main.async {[weak this] in
+                    guard let this = this else { return }
+                    this.previewView.snp.updateConstraints {
+                        $0.height.equalTo(this.view.bounds.width * (4.0 / 3.0))
+                    }
+                    this.view.layoutIfNeeded()
+                }
+            }
+            
+        default: break
+        }
     }
     
 }
