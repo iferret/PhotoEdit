@@ -37,6 +37,16 @@ class PECameraViewController: UIViewController {
         return _lineView
     }()
     
+    /// PEZoomFactorView
+    private lazy var zoomFactorView: PEZoomFactorView = {
+        let _factorView: PEZoomFactorView = .init(frame: .zero)
+        _factorView.backgroundColor = .hex("#000000", alpha: 0.1)
+        _factorView.cornerRadius = 22.0
+        _factorView.masksToBounds = true
+        _factorView.delegate = self
+        return _factorView
+    }()
+    
     /// PEPresetView
     private lazy var presetView: PEPresetView = {
         let _presetView: PEPresetView = .init(items: [.video, .photo])
@@ -84,7 +94,9 @@ class PECameraViewController: UIViewController {
     private var mediaType: PEMediaType = .photo
     
     /// Optional<AVCaptureDeviceInput>
-    private var videoInput: Optional<AVCaptureDeviceInput> = .none
+    private var videoInput: Optional<AVCaptureDeviceInput> = .none {
+        didSet { reloadZoomFactorWith(videoInput) }
+    }
     /// Optional<AVCaptureDeviceInput>
     private var audioInput: Optional<AVCaptureDeviceInput> = .none
     /// Optional<AVCapturePhotoOutput>
@@ -186,6 +198,14 @@ extension PECameraViewController {
             $0.centerY.equalTo(takeBtn)
             $0.width.height.equalTo(40.0)
         }
+        
+        view.addSubview(zoomFactorView)
+        zoomFactorView.snp.makeConstraints {
+            $0.centerX.equalToSuperview()
+            $0.width.equalTo(122.0)
+            $0.height.equalTo(44.0)
+            $0.bottom.equalTo(lineView.snp.top).offset(-16.0)
+        }
     }
     
     /// itemActionHandler
@@ -204,15 +224,28 @@ extension PECameraViewController {
             break
         case reverseBtn where postion == .back: // 切换摄像头
             try? configureWith(mediaType: mediaType, position: .front)
+            // reloadZoomFactorWith
+            reloadZoomFactorWith(videoInput)
             // transition
             UIView.transition(with: previewView, duration: 0.25, options: [.transitionFlipFromLeft], animations: .none)
         case reverseBtn where postion == .front: // // 切换摄像头
             try? configureWith(mediaType: mediaType, position: .back)
+            // reloadZoomFactorWith
+            reloadZoomFactorWith(videoInput)
             // transition
             UIView.transition(with: previewView, duration: 0.25, options: [.transitionFlipFromLeft], animations: .none)
             
         default: break
         }
+    }
+    
+    /// reloadZoomFactorWith
+    /// - Parameter input: Optional<AVCaptureDeviceInput>
+    private func reloadZoomFactorWith(_ input: Optional<AVCaptureDeviceInput>) {
+        guard let device: AVCaptureDevice = input?.device else { return }
+        zoomFactorView.maxAvailableVideoZoomFactor = device.maxAvailableVideoZoomFactor
+        zoomFactorView.minAvailableVideoZoomFactor = device.minAvailableVideoZoomFactor
+        zoomFactorView.videoZoomFactor = device.videoZoomFactor
     }
     
     /// configureWith
@@ -398,6 +431,27 @@ extension PECameraViewController: PEPresetViewDelegate {
             }
             
         default: break
+        }
+    }
+    
+}
+
+// MARK: - PEZoomFactorViewDelegate
+extension PECameraViewController: PEZoomFactorViewDelegate {
+    
+    /// selectedActionHandler
+    /// - Parameters:
+    ///   - zoomFactorView: PEZoomFactorView
+    ///   - videoZoomFactor: CGFloat
+    internal func zoomFactorView(_ zoomFactorView: PEZoomFactorView, selectedActionHandler videoZoomFactor: CGFloat) {
+        guard let device: AVCaptureDevice = videoInput?.device else { return }
+        let videoZoomFactor: CGFloat = max(min(device.maxAvailableVideoZoomFactor, videoZoomFactor), device.minAvailableVideoZoomFactor)
+        do {
+            try device.lockForConfiguration()
+            device.videoZoomFactor = videoZoomFactor
+            device.unlockForConfiguration()
+        } catch {
+            xprint(#function, error)
         }
     }
     
