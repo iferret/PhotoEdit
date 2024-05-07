@@ -17,7 +17,17 @@ class PECameraViewController: UIViewController {
     /// 闪光灯
     private lazy var flashItem: UIBarButtonItem = {
         let _img: Optional<UIImage> = .moduleImage("camera_flash_auto")?.withRenderingMode(.alwaysTemplate)
-        let _item: UIBarButtonItem = .init(image: _img, style: .plain, target: self, action: .none)
+        let _item: UIBarButtonItem = .init(image: _img, style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+        _item.tag = AVCaptureDevice.FlashMode.auto.rawValue
+        _item.tintColor = .hex("#FFE27E")
+        return _item
+    }()
+    
+    /// 照明
+    private lazy var torchItem: UIBarButtonItem = {
+        let _img: Optional<UIImage> = .moduleImage("camera_flash_auto")?.withRenderingMode(.alwaysTemplate)
+        let _item: UIBarButtonItem = .init(image: _img, style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+        _item.tag = AVCaptureDevice.TorchMode.auto.rawValue
         _item.tintColor = .hex("#FFE27E")
         return _item
     }()
@@ -65,6 +75,16 @@ class PECameraViewController: UIViewController {
         return _button
     }()
     
+    /// 拍摄视频按钮
+    private lazy var recordBtn: UIButton = {
+        let _button: UIButton = .init(type: .custom)
+        _button.setBackgroundImage(.moduleImage("camera_record_normal"), for: .normal)
+        _button.setBackgroundImage(.moduleImage("camera_record_selected"), for: .highlighted)
+        _button.addTarget(self, action: #selector(buttonActionHandler(_:)), for: .touchUpInside)
+        _button.isHidden = true
+        return _button
+    }()
+    
     /// 取消按钮
     private lazy var cancelBtn: UIButton = {
         let _button: UIButton = .init(type: .custom)
@@ -94,9 +114,7 @@ class PECameraViewController: UIViewController {
     private var mediaType: PEMediaType = .photo
     
     /// Optional<AVCaptureDeviceInput>
-    private var videoInput: Optional<AVCaptureDeviceInput> = .none {
-        didSet { reloadZoomFactorWith(videoInput) }
-    }
+    private var videoInput: Optional<AVCaptureDeviceInput> = .none
     /// Optional<AVCaptureDeviceInput>
     private var audioInput: Optional<AVCaptureDeviceInput> = .none
     /// Optional<AVCapturePhotoOutput>
@@ -105,6 +123,24 @@ class PECameraViewController: UIViewController {
     private var videoOutput: Optional<AVCaptureMovieFileOutput> = .none
     /// AVCaptureDevice.Position
     private var postion: AVCaptureDevice.Position { videoInput?.device.position ?? .back }
+    /// AVCaptureDevice.FlashMode
+    private var flashMode: AVCaptureDevice.FlashMode {
+        if flashItem.isEnabled == true {
+            return .init(rawValue: flashItem.tag) ?? .auto
+        } else {
+            return .off
+        }
+    }
+    /// AVCaptureDevice.TorchMode
+    private var torchMode: AVCaptureDevice.TorchMode {
+        if torchItem.isEnabled == true {
+            return .init(rawValue: torchItem.tag) ?? .auto
+        } else {
+            return .off
+        }
+    }
+    /// Optional<Timer>
+    private var timer: Optional<Timer> = .none
     
     // MARK: 生命周期
     
@@ -122,6 +158,8 @@ class PECameraViewController: UIViewController {
                 do {
                     // 配置参数
                     try this.configureWith(mediaType: this.mediaType, position: this.postion)
+                    // reloadWith
+                    this.reloadWith(this.videoInput)
                     // 开启设备
                     this.session.hub.startRunning()
                 } catch {
@@ -147,6 +185,8 @@ class PECameraViewController: UIViewController {
     }
     
     deinit {
+        timer?.invalidate()
+        timer = .none
         xprint(#function, #file.hub.lastPathComponent)
     }
 }
@@ -186,6 +226,11 @@ extension PECameraViewController {
             $0.height.width.equalTo(68.0)
         }
         
+        view.addSubview(recordBtn)
+        recordBtn.snp.makeConstraints {
+            $0.edges.equalTo(takeBtn)
+        }
+        
         view.addSubview(cancelBtn)
         cancelBtn.snp.makeConstraints {
             $0.centerY.equalTo(takeBtn)
@@ -211,7 +256,42 @@ extension PECameraViewController {
     /// itemActionHandler
     /// - Parameter sender: UIBarButtonItem
     @objc private func itemActionHandler(_ sender: UIBarButtonItem) {
-        
+        switch sender {
+        case flashItem where flashItem.tag == AVCaptureDevice.FlashMode.auto.rawValue:
+            flashItem.image = .moduleImage("camera_flash_on")?.withRenderingMode(.alwaysTemplate)
+            flashItem.tintColor = .hex("#FFE27E")
+            flashItem.tag = AVCaptureDevice.FlashMode.on.rawValue
+        case flashItem where flashItem.tag == AVCaptureDevice.FlashMode.on.rawValue:
+            flashItem.image = .moduleImage("camera_flash_off")?.withRenderingMode(.alwaysTemplate)
+            flashItem.tintColor = .hex("#FFFFFF")
+            flashItem.tag = AVCaptureDevice.FlashMode.off.rawValue
+        case flashItem where flashItem.tag == AVCaptureDevice.FlashMode.off.rawValue:
+            flashItem.image = .moduleImage("camera_flash_auto")?.withRenderingMode(.alwaysTemplate)
+            flashItem.tintColor = .hex("#FFE27E")
+            flashItem.tag = AVCaptureDevice.FlashMode.auto.rawValue
+            
+        case torchItem where torchItem.tag == AVCaptureDevice.TorchMode.auto.rawValue:
+            torchItem.image = .moduleImage("camera_flash_on")?.withRenderingMode(.alwaysTemplate)
+            torchItem.tintColor = .hex("#FFE27E")
+            torchItem.tag = AVCaptureDevice.TorchMode.on.rawValue
+            guard let videoInput = videoInput else { return }
+            reloadWith(videoInput)
+        case torchItem where torchItem.tag == AVCaptureDevice.TorchMode.on.rawValue:
+            torchItem.image = .moduleImage("camera_flash_off")?.withRenderingMode(.alwaysTemplate)
+            torchItem.tintColor = .hex("#FFFFFF")
+            torchItem.tag = AVCaptureDevice.TorchMode.off.rawValue
+            guard let videoInput = videoInput else { return }
+            reloadWith(videoInput)
+        case torchItem where torchItem.tag == AVCaptureDevice.TorchMode.off.rawValue:
+            torchItem.image = .moduleImage("camera_flash_auto")?.withRenderingMode(.alwaysTemplate)
+            torchItem.tintColor = .hex("#FFE27E")
+            torchItem.tag = AVCaptureDevice.TorchMode.auto.rawValue
+            guard let videoInput = videoInput else { return }
+            reloadWith(videoInput)
+            
+        default: break
+            
+        }
     }
     
     /// buttonActionHandler
@@ -225,13 +305,13 @@ extension PECameraViewController {
         case reverseBtn where postion == .back: // 切换摄像头
             try? configureWith(mediaType: mediaType, position: .front)
             // reloadZoomFactorWith
-            reloadZoomFactorWith(videoInput)
+            reloadWith(videoInput)
             // transition
             UIView.transition(with: previewView, duration: 0.25, options: [.transitionFlipFromLeft], animations: .none)
         case reverseBtn where postion == .front: // // 切换摄像头
             try? configureWith(mediaType: mediaType, position: .back)
             // reloadZoomFactorWith
-            reloadZoomFactorWith(videoInput)
+            reloadWith(videoInput)
             // transition
             UIView.transition(with: previewView, duration: 0.25, options: [.transitionFlipFromLeft], animations: .none)
             
@@ -239,13 +319,38 @@ extension PECameraViewController {
         }
     }
     
-    /// reloadZoomFactorWith
-    /// - Parameter input: Optional<AVCaptureDeviceInput>
-    private func reloadZoomFactorWith(_ input: Optional<AVCaptureDeviceInput>) {
-        guard let device: AVCaptureDevice = input?.device else { return }
-        zoomFactorView.maxAvailableVideoZoomFactor = device.maxAvailableVideoZoomFactor
-        zoomFactorView.minAvailableVideoZoomFactor = device.minAvailableVideoZoomFactor
-        zoomFactorView.videoZoomFactor = device.videoZoomFactor
+    /// reloadWith
+    /// - Parameter flashMode: Optional<AVCaptureDeviceInput>
+    private func reloadWith(_ videoInput: Optional<AVCaptureDeviceInput>) {
+        guard let videoInput = videoInput else { return }
+        do {
+            // videoZoomFactor
+            zoomFactorView.maxAvailableVideoZoomFactor = videoInput.device.maxAvailableVideoZoomFactor
+            zoomFactorView.minAvailableVideoZoomFactor = videoInput.device.minAvailableVideoZoomFactor
+            zoomFactorView.videoZoomFactor = videoInput.device.videoZoomFactor
+            // next
+            switch mediaType {
+            case .photo where videoInput.device.hasFlash == true:
+                navigationItem.leftBarButtonItem = flashItem
+                navigationItem.leftBarButtonItem?.isEnabled = true
+            case .photo:
+                navigationItem.leftBarButtonItem = flashItem
+                navigationItem.leftBarButtonItem?.isEnabled = false
+            case .video where videoInput.device.hasTorch == true:
+                navigationItem.leftBarButtonItem = torchItem
+                navigationItem.leftBarButtonItem?.isEnabled = true
+                try videoInput.device.lockForConfiguration()
+                videoInput.device.torchMode = torchMode
+                videoInput.device.unlockForConfiguration()
+            case .video:
+                navigationItem.leftBarButtonItem = torchItem
+                navigationItem.leftBarButtonItem?.isEnabled = false
+                
+            default: break
+            }
+        } catch {
+            xprint(#function, error)
+        }
     }
     
     /// configureWith
@@ -256,6 +361,9 @@ extension PECameraViewController {
         switch mediaType {
         case .video:
             session.beginConfiguration()
+            if session.canSetSessionPreset(.hd1920x1080) == true {
+                session.sessionPreset = .hd1920x1080
+            }
             // 添加视频采集设备
             var obj: AVCaptureDevice.DiscoverySession = .init(deviceTypes: [.builtInDualCamera, .builtInWideAngleCamera], mediaType: .video, position: position)
             if let first = obj.devices.first, videoInput?.device != first {
@@ -334,8 +442,11 @@ extension PECameraViewController {
         case .photo:
             // beginConfiguration
             session.beginConfiguration()
+            if session.canSetSessionPreset(.photo) == true {
+                session.sessionPreset = .photo
+            }
             // 添加视频采集设备
-            let obj: AVCaptureDevice.DiscoverySession = .init(deviceTypes: [.builtInWideAngleCamera, .builtInDualCamera], mediaType: .video, position: position)
+            let obj: AVCaptureDevice.DiscoverySession = .init(deviceTypes: [.builtInDualCamera, .builtInWideAngleCamera], mediaType: .video, position: position)
             if let first = obj.devices.first, videoInput?.device != first {
                 if let videoInput = videoInput {
                     // 移除input
@@ -403,14 +514,12 @@ extension PECameraViewController: PEPresetViewDelegate {
         case .video where session.sessionPreset == .photo && session.canSetSessionPreset(.hd1920x1080) == true:
             DispatchQueue.global().async {[weak self] in
                 guard let this = self else { return }
-                this.session.beginConfiguration()
-                this.session.sessionPreset = .hd1920x1080
-                this.session.commitConfiguration()
+                try? this.configureWith(mediaType: .video, position: this.postion)
                 DispatchQueue.main.async {[weak this] in
                     guard let this = this else { return }
-                    this.previewView.snp.updateConstraints {
-                        $0.height.equalTo(this.view.bounds.width * (16.0 / 9.0))
-                    }
+                    this.mediaType = .video
+                    this.reloadWith(this.videoInput)
+                    this.previewView.snp.updateConstraints { $0.height.equalTo(this.view.bounds.width * (16.0 / 9.0)) }
                     this.view.layoutIfNeeded()
                 }
             }
@@ -418,14 +527,12 @@ extension PECameraViewController: PEPresetViewDelegate {
         case .photo where session.sessionPreset == .hd1920x1080:
             DispatchQueue.global().async {[weak self] in
                 guard let this = self else { return }
-                this.session.beginConfiguration()
-                this.session.sessionPreset = .photo
-                this.session.commitConfiguration()
+                try? this.configureWith(mediaType: .photo, position: this.postion)
                 DispatchQueue.main.async {[weak this] in
                     guard let this = this else { return }
-                    this.previewView.snp.updateConstraints {
-                        $0.height.equalTo(this.view.bounds.width * (4.0 / 3.0))
-                    }
+                    this.mediaType = .photo
+                    this.reloadWith(this.videoInput)
+                    this.previewView.snp.updateConstraints { $0.height.equalTo(this.view.bounds.width * (4.0 / 3.0)) }
                     this.view.layoutIfNeeded()
                 }
             }
