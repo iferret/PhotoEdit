@@ -93,13 +93,7 @@ class PECameraViewController: UIViewController {
     /// Optional<AVCaptureMovieFileOutput>
     private var videoOutput: Optional<AVCaptureMovieFileOutput> = .none
     /// AVCaptureDevice.Position
-    private var postion: AVCaptureDevice.Position {
-        if let videoInput = videoInput {
-            return videoInput.device.position
-        } else {
-            return .back
-        }
-    }
+    private var postion: AVCaptureDevice.Position { videoInput?.device.position ?? .back }
     
     // MARK: 生命周期
     
