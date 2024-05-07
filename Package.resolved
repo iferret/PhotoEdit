@@ -1,0 +1,24 @@
+{
+  "originHash" : "4934f1060fa522b8c79e876a46621fd874f1b52ce715f65ba72b5a414521fd70",
+  "pins" : [
+    {
+      "identity" : "hero",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/HeroTransitions/Hero.git",
+      "state" : {
+        "revision" : "b307e2d48d582118e5101d04f5187c91595a1095",
+        "version" : "1.6.3"
+      }
+    },
+    {
+      "identity" : "snapkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SnapKit/SnapKit.git",
+      "state" : {
+        "revision" : "2842e6e84e82eb9a8dac0100ca90d9444b0307f4",
+        "version" : "5.7.1"
+      }
+    }
+  ],
+  "version" : 3
+}
