@@ -9,6 +9,16 @@ import UIKit
 import AVFoundation
 import SnapKit
 
+/// PEVideoPreviewViewDelegate
+protocol PEVideoPreviewViewDelegate: AnyObject {
+    
+    /// focusActionHandler
+    /// - Parameters:
+    ///   - previewView: PEVideoPreviewView
+    ///   - location: CGPoint
+    func previewView(_ previewView: PEVideoPreviewView, focusActionHandler location: CGPoint)
+}
+
 /// PEVideoPreviewView
 class PEVideoPreviewView: UIView {
     
@@ -24,13 +34,29 @@ class PEVideoPreviewView: UIView {
         return layer as! AVCaptureVideoPreviewLayer
     }
     
+    /// UIImageView
+    private(set) lazy var focusView: UIImageView = {
+        let _img: Optional<UIImage> = .moduleImage("camera_focus")?.withRenderingMode(.alwaysTemplate)
+        let _imgView: UIImageView = .init(image: _img)
+        _imgView.tintColor = .hex("#FFFFFF")
+        _imgView.alpha = 0.0
+        return _imgView
+    }()
+    
+    /// Optional<PEVideoPreviewViewDelegate>
+    internal weak var delegate: Optional<PEVideoPreviewViewDelegate> = .none
+    
+    /// Bool
+    private var isAdjustingFocusPoint: Bool = false
+    
     // MARK: 私有属性
     
-    /// UIVisualEffectView
-    private lazy var effectView: UIVisualEffectView = {
-        let _effectView: UIVisualEffectView = .init(effect: UIBlurEffect.init(style: .dark))
-        _effectView.alpha = 0.0
-        return _effectView
+    /// UITapGestureRecognizer
+    private lazy var tapGesture: UITapGestureRecognizer = {
+        let _tap: UITapGestureRecognizer = .init(target: self, action: #selector(tapActionHandler(_:)))
+        _tap.numberOfTapsRequired = 1
+        _tap.numberOfTouchesRequired = 1
+        return _tap
     }()
     
     // MARK: 生命周期
@@ -57,23 +83,65 @@ extension PEVideoPreviewView {
     /// 初始化
     private func initialize() {
         // coding here ...
-        addSubview(effectView)
-        effectView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+        addGestureRecognizer(tapGesture)
+        
+        addSubview(focusView)
+        focusView.snp.makeConstraints {
+            $0.center.equalToSuperview()
         }
     }
     
-    /// blured
-    internal func blured() {
-        UIView.animate(withDuration: 0.25) {
-            self.effectView.alpha = 1.0
-        }
+    /// tapActionHandler
+    /// - Parameter sender: UITapGestureRecognizer
+    @objc private func tapActionHandler(_ sender: UITapGestureRecognizer) {
+        let location = sender.location(in: self)
+        focusView.center = location
+        focusView.alpha = 1.0
+        // next
+        let scaleAnimation: CABasicAnimation = .animation(keyPath: .scale, fromValue: 2.0, toValue: 1.0, duration: 0.25)
+        let fadeShowAnimation: CABasicAnimation = .animation(keyPath: .fade, fromValue: 0.0, toValue: 1.0, duration: 0.25)
+        let fadeDismissAnimation: CABasicAnimation = .animation(keyPath: .fade, fromValue: 1.0, toValue: 0.0, duration: 0.25)
+        fadeShowAnimation.beginTime = 0.75
+        let group: CAAnimationGroup = .init()
+        group.animations = [scaleAnimation, fadeShowAnimation, fadeDismissAnimation]
+        group.duration = 1
+        group.delegate = self
+        group.fillMode = .forwards
+        group.isRemovedOnCompletion = false
+        focusView.layer.add(group, forKey: nil)
+        // next UI坐标转换为摄像头坐标
+        let newlocation: CGPoint = previewLayer.captureDevicePointConverted(fromLayerPoint: location)
+        // next
+        delegate?.previewView(self, focusActionHandler: newlocation)
+    }
+  
+    /// hood
+    internal func hood() {
+        guard let snapshot: UIView = snapshotView(afterScreenUpdates: false) else { return }
+        snapshot.tag = 90001
+        snapshot.frame = bounds
+        addSubview(snapshot)
     }
     
-    /// unblured
-    internal func unblured() {
-        UIView.animate(withDuration: 0.25) {
-            self.effectView.alpha = 0.0
+    /// unhood
+    internal func unhood() {
+        viewWithTag(90001)?.removeFromSuperview()
+    }
+}
+
+extension PEVideoPreviewView: CAAnimationDelegate {
+    
+    /// animationDidStop
+    /// - Parameters:
+    ///   - anim: CAAnimation
+    ///   - flag: Bool
+    internal func animationDidStop(_ anim: CAAnimation, finished flag: Bool) {
+        if anim is CAAnimationGroup {
+            focusView.alpha = 0
+            focusView.layer.removeAllAnimations()
+            isAdjustingFocusPoint = false
+        } else {
+            
         }
     }
 }

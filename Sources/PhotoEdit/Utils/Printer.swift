@@ -12,7 +12,7 @@ import Foundation
 ///   - items: Any...
 ///   - separator: String
 ///   - terminator: String
-func xprint(_ items: Any..., separator: String = " ", terminator: String = "\n") {
+func xprint(_ items: Optional<Any>..., separator: String = " ", terminator: String = "\n") {
 #if DEBUG
     Swift.print(items, separator: separator, terminator: terminator)
 #endif

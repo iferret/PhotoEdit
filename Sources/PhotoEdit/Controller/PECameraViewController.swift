@@ -8,6 +8,8 @@
 import UIKit
 import AVFoundation
 import SnapKit
+import CoreMotion
+import Hero
 
 /// PECameraViewController
 class PECameraViewController: UIViewController {
@@ -37,6 +39,8 @@ class PECameraViewController: UIViewController {
         let _previewView: PEVideoPreviewView = .init(session: session)
         _previewView.backgroundColor = .hex("#000000")
         _previewView.videoGravity = .resizeAspectFill
+        _previewView.hero.id = "preview_layer"
+        _previewView.delegate = self
         return _previewView
     }()
     
@@ -139,8 +143,17 @@ class PECameraViewController: UIViewController {
             return .off
         }
     }
+    
+    /// AVCaptureVideoOrientation
+    private var videoOrientation: AVCaptureVideoOrientation = .portrait
+    /// Optional<CMMotionManager>
+    private var motionManager: Optional<CMMotionManager> = .none
+    
     /// Optional<Timer>
     private var timer: Optional<Timer> = .none
+    
+    /// Bool
+    private var isReady: Bool = false
     
     // MARK: 生命周期
     
@@ -162,6 +175,8 @@ class PECameraViewController: UIViewController {
                     this.reloadWith(this.videoInput)
                     // 开启设备
                     this.session.hub.startRunning()
+                    // 标记
+                    this.isReady = true
                 } catch {
                     let controller: UIAlertController = .init(title: "操作提醒", message: error.localizedDescription, preferredStyle: .alert)
                     controller.hub.addAction(title: "关闭") {[weak this] action in
@@ -182,6 +197,40 @@ class PECameraViewController: UIViewController {
                 this.present(controller, animated: true, completion: .none)
             }
         }
+    }
+    
+    /// viewWillAppear
+    /// - Parameter animated: Bool
+    internal override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // next
+        motionManager = .init()
+        motionManager?.deviceMotionUpdateInterval = 0.5
+        if motionManager?.isDeviceMotionAvailable == true {
+            motionManager?.startDeviceMotionUpdates(to: .main, withHandler: {[weak self] motion, _ in
+                guard let this = self, let motion = motion else { return }
+                let x = motion.gravity.x
+                let y = motion.gravity.y
+                if abs(y) >= abs(x) || abs(x) < 0.45 {
+                    this.videoOrientation = y >= 0.45 ? .portraitUpsideDown : .portrait
+                } else {
+                    this.videoOrientation = x >= 0.0 ? .landscapeLeft : .landscapeRight
+                }
+            })
+        }
+        // start running
+        if isReady == true {
+            session.hub.startRunning()
+        }
+    }
+    
+    /// viewDidAppear
+    /// - Parameter animated: Bool
+    internal override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        // next
+        motionManager?.stopDeviceMotionUpdates()
+        motionManager = .none
     }
     
     deinit {
@@ -300,8 +349,6 @@ extension PECameraViewController {
         switch sender {
         case cancelBtn: // 关闭当前页面
             (navigationController ?? self).dismiss(animated: true, completion: .none)
-        case takeBtn: // 拍照
-            break
         case reverseBtn where postion == .back: // 切换摄像头
             try? configureWith(mediaType: mediaType, position: .front)
             // reloadZoomFactorWith
@@ -314,6 +361,30 @@ extension PECameraViewController {
             reloadWith(videoInput)
             // transition
             UIView.transition(with: previewView, duration: 0.25, options: [.transitionFlipFromLeft], animations: .none)
+            
+        case takeBtn: // 拍照
+            guard let input: AVCaptureDeviceInput = videoInput,
+                  let ouput: AVCapturePhotoOutput = photoOutput
+            else { return }
+            // 屏蔽用户交互
+            (navigationController ?? self).view.isUserInteractionEnabled = false
+            // AVCaptureConnection
+            if let connection: AVCaptureConnection = ouput.connection(with: .video) {
+                // 修复镜像问题
+                if input.device.position == .front, connection.isVideoMirroringSupported == true {
+                    connection.isVideoMirrored = true
+                }
+                // 设置方向
+                connection.videoOrientation = videoOrientation
+            }
+            // AVCapturePhotoSettings
+            let settings: AVCapturePhotoSettings = .init(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
+            settings.flashMode = input.device.hasFlash == true ? flashMode : .off
+            // capturePhoto
+            ouput.capturePhoto(with: settings, delegate: self)
+            
+        case recordBtn: // 记录视频
+            break
             
         default: break
         }
@@ -502,6 +573,36 @@ extension PECameraViewController {
     
 }
 
+// MARK: - PEVideoPreviewViewDelegate
+extension PECameraViewController: PEVideoPreviewViewDelegate {
+    
+    /// focusActionHandler
+    /// - Parameters:
+    ///   - previewView: PEVideoPreviewView
+    ///   - location: CGPoint
+    internal func previewView(_ previewView: PEVideoPreviewView, focusActionHandler location: CGPoint) {
+        guard let videoInput = videoInput else { return }
+        do {
+            try videoInput.device.lockForConfiguration()
+            if videoInput.device.isFocusModeSupported(.autoFocus) == true {
+                videoInput.device.focusMode = .autoFocus
+            }
+            if videoInput.device.isFocusPointOfInterestSupported == true {
+                videoInput.device.focusPointOfInterest = location
+            }
+            if videoInput.device.isExposureModeSupported(.autoExpose) == true  {
+                videoInput.device.exposureMode = .autoExpose
+            }
+            if videoInput.device.isExposurePointOfInterestSupported == true  {
+                videoInput.device.exposurePointOfInterest = location
+            }
+            videoInput.device.unlockForConfiguration()
+        } catch {
+            xprint("相机聚焦设置失败 =>", error.localizedDescription)
+        }
+    }
+}
+
 // MARK: - PEPresetViewDelegate
 extension PECameraViewController: PEPresetViewDelegate {
     
@@ -520,6 +621,8 @@ extension PECameraViewController: PEPresetViewDelegate {
                     this.mediaType = .video
                     this.reloadWith(this.videoInput)
                     this.previewView.snp.updateConstraints { $0.height.equalTo(this.view.bounds.width * (16.0 / 9.0)) }
+                    this.recordBtn.isHidden = false
+                    this.takeBtn.isHidden = true
                     this.view.layoutIfNeeded()
                 }
             }
@@ -533,6 +636,8 @@ extension PECameraViewController: PEPresetViewDelegate {
                     this.mediaType = .photo
                     this.reloadWith(this.videoInput)
                     this.previewView.snp.updateConstraints { $0.height.equalTo(this.view.bounds.width * (4.0 / 3.0)) }
+                    this.recordBtn.isHidden = true
+                    this.takeBtn.isHidden = false
                     this.view.layoutIfNeeded()
                 }
             }
@@ -562,4 +667,89 @@ extension PECameraViewController: PEZoomFactorViewDelegate {
         }
     }
     
+}
+
+// MARK: - AVCapturePhotoCaptureDelegate
+extension PECameraViewController: AVCapturePhotoCaptureDelegate {
+    
+    /// willBeginCaptureFor
+    /// - Parameters:
+    ///   - output: AVCapturePhotoOutput
+    ///   - resolvedSettings: AVCaptureResolvedPhotoSettings
+    internal func photoOutput(_ output: AVCapturePhotoOutput, willBeginCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+        xprint(#function)
+    }
+    
+    /// willCapturePhotoFor
+    /// - Parameters:
+    ///   - output: AVCapturePhotoOutput
+    ///   - resolvedSettings: AVCaptureResolvedPhotoSettings
+    internal func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+        xprint(#function)
+        previewView.hood()
+    }
+    
+    /// didCapturePhotoFor
+    /// - Parameters:
+    ///   - output: AVCapturePhotoOutput
+    ///   - resolvedSettings: AVCaptureResolvedPhotoSettings
+    internal func photoOutput(_ output: AVCapturePhotoOutput, didCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+        xprint(#function)
+    }
+    
+    /// didFinishProcessingPhoto
+    /// - Parameters:
+    ///   - output: AVCapturePhotoOutput
+    ///   - photo: AVCapturePhoto
+    ///   - error: Error
+    internal func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: (any Error)?) {
+        xprint(#function, error)
+        // next
+        if let error = error { // 发生了错误
+            DispatchQueue.execute(inQueue: .main) {[weak self, weak output] in
+                guard let this = self, let output = output else { return }
+                this.photoOutput(output, didFinishProcessingPhoto: .failure(error))
+            }
+        } else if let newData: Data = photo.fileDataRepresentation(), let uiImage: UIImage = .init(data: newData) { // 提取图片
+            // 修复图片
+            let newImage: UIImage = uiImage.hub.fixOrientation()
+            // next
+            DispatchQueue.execute(inQueue: .main) {[weak self, weak output] in
+                guard let this = self, let output = output else { return }
+                this.photoOutput(output, didFinishProcessingPhoto: .success(newImage))
+            }
+        } else {
+            let error: PEError = .custom("图片生成失败")
+            DispatchQueue.execute(inQueue: .main) {[weak self, weak output] in
+                guard let this = self, let output = output else { return }
+                this.photoOutput(output, didFinishProcessingPhoto: .failure(error))
+            }
+        }
+    }
+    
+    /// didFinishProcessingPhoto
+    /// - Parameters:
+    ///   - output: AVCapturePhotoOutput
+    ///   - result: Result<UIImage, Error>
+    private func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto result: Result<UIImage, Error>) {
+        // 开启交互
+        (navigationController ?? self).view.isUserInteractionEnabled = true
+        // next
+        switch result {
+        case .success(let newImage):
+            session.hub.stopRunning()
+            // 进入预览页
+            let controller: PEImageViewController = .init(uiImage: newImage)
+            navigationController?.pushViewController(controller, animated: true)
+            self.previewView.unhood()
+            
+        case .failure(let error):
+            let controller: UIAlertController = .init(title: "操作提醒", message: error.localizedDescription, preferredStyle: .alert)
+            controller.hub.addAction(title: "关闭") {[unowned self] action in
+                self.session.hub.startRunning()
+                self.previewView.unhood()
+            }
+            self.present(controller, animated: true, completion: .none)
+        }
+    }
 }
