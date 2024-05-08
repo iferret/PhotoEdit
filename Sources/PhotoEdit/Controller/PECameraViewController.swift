@@ -13,7 +13,8 @@ import Hero
 
 /// PECameraViewController
 class PECameraViewController: UIViewController {
-    
+    // next
+    typealias ResultType = PhotoEditViewController.ResultType
     // MARK: 私有属性
     
     /// 闪光灯
@@ -164,6 +165,9 @@ class PECameraViewController: UIViewController {
         return [presetView, cancelBtn, reverseBtn]
     }
     
+    /// Optional<(_ result: ResultType) -> Void>
+    private var completionHandler: Optional<(_ result: ResultType) -> Void> = .none
+    
     // MARK: 生命周期
     
     /// viewDidLoad
@@ -222,6 +226,15 @@ class PECameraViewController: UIViewController {
         timer?.invalidate()
         timer = .none
         xprint(#function, #file.hub.lastPathComponent)
+    }
+}
+
+extension PECameraViewController {
+    
+    /// completionHandler
+    /// - Parameter handler: Optional<(ResultType) -> Void>
+    internal func completionHandler(_ handler: Optional<(ResultType) -> Void>) {
+        self.completionHandler = handler
     }
 }
 
@@ -797,6 +810,7 @@ extension PECameraViewController: AVCapturePhotoCaptureDelegate {
             session.hub.stopRunning()
             // 进入预览页
             let controller: PEImageViewController = .init(uiImage: newImage)
+            controller.completionHandler(completionHandler)
             navigationController?.pushViewController(controller, animated: true)
             self.previewView.unhood()
             
@@ -873,6 +887,7 @@ extension PECameraViewController: AVCaptureFileOutputRecordingDelegate {
         } else {
             // next
             let controller: PEVideoViewController = .init(fileURL: outputFileURL)
+            controller.completionHandler(completionHandler)
             navigationController?.pushViewController(controller, animated: true)
             // next
             session.hub.stopRunning()

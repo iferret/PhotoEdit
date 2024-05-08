@@ -7,9 +7,12 @@
 
 import UIKit
 import AVKit
+import Hero
+import SnapKit
 
 /// PEVideoViewController
 class PEVideoViewController: UIViewController {
+    typealias ResultType = PhotoEditViewController.ResultType
     
     // MARK: 私有属性
 
@@ -45,11 +48,14 @@ class PEVideoViewController: UIViewController {
         let _controller: AVPlayerViewController = .init()
         _controller.player = .init(url: fileURL)
         _controller.videoGravity = .resizeAspectFill
+        _controller.view.hero.id = "preview_layer"
         return _controller
     }()
     
     /// URL
     private let fileURL: URL
+    /// Optional<(ResultType) -> Void>
+    private var completionHandler: Optional<(ResultType) -> Void> = .none
     
     // MARK: 生命周期
     
@@ -101,8 +107,21 @@ extension PEVideoViewController {
     /// itemActionHandler
     /// - Parameter sender: UIBarButtonItem
     @objc private func itemActionHandler(_ sender: UIBarButtonItem) {
-        
+        switch sender {
+        case redoItem:
+            navigationController?.popViewController(animated: true)
+        case useItem:
+            // dismiss
+            navigationController?.dismiss(animated: true, completion: .none)
+            // next
+            completionHandler?(.video(fileURL))
+        default: break
+        }
     }
 
-    
+    /// completionHandler
+    /// - Parameter handler: Optional<(ResultType) -> Void>
+    internal func completionHandler(_ handler: Optional<(ResultType) -> Void>) {
+        self.completionHandler = handler
+    }
 }

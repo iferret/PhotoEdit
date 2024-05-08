@@ -11,6 +11,7 @@ import Hero
 
 /// PEImageViewController
 class PEImageViewController: UIViewController {
+    typealias ResultType = PhotoEditViewController.ResultType
     
     // MARK: 私有属性
     
@@ -57,9 +58,10 @@ class PEImageViewController: UIViewController {
         return _toolbar
     }()
     
-    
     /// UIImage
     private var uiImage: UIImage
+    /// Optional<(ResultType) -> Void>
+    private var completionHandler: Optional<(ResultType) -> Void> = .none
     
     // MARK: 生命周期
     
@@ -117,8 +119,17 @@ extension PEImageViewController {
         case editItem:
             break
         case useItem:
-            break
+            // dismiss
+            navigationController?.dismiss(animated: true, completion: .none)
+            // next
+            completionHandler?(.photo(uiImage))
         default: break
         }
+    }
+    
+    /// completionHandler
+    /// - Parameter handler: Optional<(ResultType) -> Void>
+    internal func completionHandler(_ handler: Optional<(ResultType) -> Void>) {
+        self.completionHandler = handler
     }
 }

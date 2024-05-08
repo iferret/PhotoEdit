@@ -10,7 +10,7 @@ import Foundation
 extension FileManager: Compatible {}
 extension CompatibleWrapper where Base: FileManager {
     
-    /// ;i
+    /// URL
     internal var temporaryURL: URL {
         if #available(iOS 16.0, *) {
             return .init(filePath: NSTemporaryDirectory())

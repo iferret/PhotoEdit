@@ -13,11 +13,6 @@ public class PhotoEditViewController: UINavigationController {
     /// SourceType
     internal let sourceType: SourceType
     
-    // MARK: 私有属性
-    
-    /// Optional<(ResultType) -> Void>
-    private var completionHandler: Optional<(ResultType) -> Void> = .none
-    
     // MARK: 生命周期
     
     /// 构建
@@ -67,4 +62,15 @@ extension PhotoEditViewController {
         // coding here ...
         view.backgroundColor = .hex("#000000")
     }
+    
+    /// completionHandler
+    /// - Parameter handler: ResultType
+    public func completionHandler(_ handler: Optional<(_ result: ResultType) -> Void>) {
+        // 关联相机
+        let cameras: Array<PECameraViewController> = self.hub.viewControllers()
+        cameras.forEach { $0.completionHandler(handler) }
+        // 关联图片编辑
+        
+    }
+    
 }
