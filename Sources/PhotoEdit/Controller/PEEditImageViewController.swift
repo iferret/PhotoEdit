@@ -1,6 +1,6 @@
 //
-//  PEImageEditViewController.swift
-//  
+//  PEEditImageViewController.swift
+//
 //
 //  Created by iferret on 2024/5/8.
 //
@@ -10,18 +10,31 @@ import SnapKit
 import Hero
 import ZLPhotoBrowser
 
-/// PEImageEditViewController
-class PEImageEditViewController: UIViewController {
+/// PEEditImageViewController
+class PEEditImageViewController: UIViewController {
     // next
     typealias ResultType = PhotoEditViewController.ResultType
     
     // MARK: 私有属性
+    
+    /// UIScrollView
+    private lazy var scrollView: UIScrollView = {
+        let _scrolView: UIScrollView = .init(frame: .zero)
+        _scrolView.showsVerticalScrollIndicator = false
+        _scrolView.showsHorizontalScrollIndicator = false
+        _scrolView.contentInsetAdjustmentBehavior = .never
+        _scrolView.minimumZoomScale = 1.0
+        _scrolView.maximumZoomScale = 5.0
+        _scrolView.delegate = self
+        return _scrolView
+    }()
     
     /// UIImageView
     private lazy var imgView: UIImageView = {
         let _imgView: UIImageView = .init(image: editImage)
         _imgView.contentMode = .scaleAspectFit
         _imgView.hero.id = "preview_layer"
+        // _imgView.backgroundColor = .random
         return _imgView
     }()
     
@@ -32,14 +45,23 @@ class PEImageEditViewController: UIViewController {
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
         return _item
     }()
+        /// 重置
+    private lazy var undoItem: UIBarButtonItem = {
+        let _item: UIBarButtonItem = .init(title: "重置", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
+        _item.isEnabled = false
+        return _item
+    }()
     
     /// 完成
     private lazy var doneItem: UIBarButtonItem = {
         let _item: UIBarButtonItem = .init(title: "完成", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#666666")], for: .disabled)
-        _item.isEnabled = false
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
+        // _item.isEnabled = false
         return _item
     }()
     
@@ -48,10 +70,21 @@ class PEImageEditViewController: UIViewController {
         let _toolbar: UIToolbar = .init(frame: .init(x: 0.0, y: 0.0, width: view.bounds.width, height: 52.0))
         _toolbar.standardAppearance = .init()
         _toolbar.standardAppearance.configureWithOpaqueBackground()
-        _toolbar.standardAppearance.backgroundColor = .hex("#141414")
-        _toolbar.backgroundColor = .hex("#141414")
-        _toolbar.items = [cancelItem, .flexible(), doneItem]
+        _toolbar.standardAppearance.backgroundColor = .clear
+        _toolbar.standardAppearance.shadowColor = .clear
+        _toolbar.backgroundColor = .clear
+        _toolbar.items = [cancelItem, .flexible(), undoItem, .flexible(), doneItem]
         return _toolbar
+    }()
+    
+    /// UIView
+    private lazy var bottomView: PEGradientView = {
+        let _bottomView: PEGradientView = .init(frame: .zero)
+        _bottomView.colors = [.hex("#141414", alpha: 0.0), .hex("#141414", alpha: 0.9)]
+        _bottomView.backgroundColor = .clear
+        _bottomView.startPoint = .init(x: 1.0, y: 0.0)
+        _bottomView.endPoint = .init(x: 1.0, y: 1.0)
+        return _bottomView
     }()
     
     /// 裁剪
@@ -78,26 +111,21 @@ class PEImageEditViewController: UIViewController {
         return _toolbar
     }()
     
-    /// 重置
-    private lazy var undoItem: UIBarButtonItem = {
-        let _item: UIBarButtonItem = .init(title: "重置", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#666666")], for: .disabled)
-        _item.isEnabled = false
-        return _item
+    /// 点击手势
+    private lazy var tapGesture: UITapGestureRecognizer = {
+        let _tap: UITapGestureRecognizer = .init(target: self, action: #selector(tapActionHandler(_:)))
+        _tap.numberOfTapsRequired = 2
+        return _tap
     }()
     
     /// UIImage
     private let originImage: UIImage
     /// UIImage
     private var editImage: UIImage {
-        didSet { undoItem.isEnabled = true; doneItem.isEnabled = true }
+        didSet { undoItem.isEnabled = true }
     }
     /// Optional<(ResultType) -> Void>
     private var completionHandler: Optional<(ResultType) -> Void> = .none
-    /// ZLEditImageModel
-    private lazy var editModel: ZLEditImageModel = .default(editRect: .init(x: 0.0, y: 0.0, width: editImage.size.width, height: editImage.size.height))
     
     // MARK: 生命周期
     
@@ -125,33 +153,44 @@ class PEImageEditViewController: UIViewController {
     
 }
 
-extension PEImageEditViewController {
+extension PEEditImageViewController {
     
     /// 初始化
     private func initialize() {
         // coding here ...
         view.backgroundColor = .hex("#000000")
         navigationItem.leftBarButtonItem = .disabled
-        navigationItem.rightBarButtonItem = undoItem
+        scrollView.addGestureRecognizer(tapGesture)
+        // imgView.isUserInteractionEnabled = true
         
         // 布局
-        view.addSubview(bottomBar)
+        imgView.frame = view.bounds
+        scrollView.contentSize = view.bounds.size
+        scrollView.addSubview(imgView)
+        
+        view.addSubview(scrollView)
+        scrollView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+        }
+        
+        view.addSubview(bottomView)
+        bottomView.snp.makeConstraints {
+            $0.left.right.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-52.0)
+        }
+        
+        bottomView.addSubview(bottomBar)
         bottomBar.snp.makeConstraints {
-            $0.left.right.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.left.right.top.equalToSuperview()
             $0.height.equalTo(52.0)
         }
         
         view.addSubview(toolbar)
         toolbar.snp.makeConstraints {
             $0.left.right.equalToSuperview()
-            $0.bottom.equalTo(bottomBar.snp.top).offset(-24.0)
+            $0.bottom.equalTo(bottomBar.snp.top).offset(-16.0)
             $0.height.equalTo(32.0)
-        }
-        
-        view.addSubview(imgView)
-        imgView.snp.makeConstraints {
-            $0.left.right.top.equalTo(view.safeAreaLayoutGuide)
-            $0.bottom.equalTo(toolbar.snp.top).offset(-28.0)
         }
         
     }
@@ -169,32 +208,63 @@ extension PEImageEditViewController {
             self.editImage = originImage
             self.imgView.image = originImage
             self.undoItem.isEnabled = false
-            self.doneItem.isEnabled = false
+            // self.doneItem.isEnabled = false
             
         case clipItem: // 裁剪
-            let controller: PEClipImageViewController = .init(image: editImage, status: editModel.clipStatus)
-            controller.completionHandler {[weak self] result in
+            let editRect: CGRect = .init(x: 0.0, y: 0.0, width: editImage.size.width, height: editImage.size.height)
+            let controller: PEClipImageViewController = .init(image: editImage, status: .default(editRect: editRect))
+            controller.completionHandler {[weak self] newImage in
                 guard let this = self else { return }
-                switch result {
-                case .photo(let newImage):
-                    this.editImage = newImage
-                    this.imgView.image = newImage
-                    this.undoItem.isEnabled = true
-                    this.doneItem.isEnabled = true
-                default: break
-                }
+                this.editImage = newImage
+                this.imgView.image = newImage
+                this.undoItem.isEnabled = true
+                // this.doneItem.isEnabled = true
             }
             navigationController?.pushViewController(controller, animated: true)
+     
         case drawItem: // 涂鸦
-            break
+            let controller: PEDrawImageViewController = .init(uiImage: editImage, drawType: .mosaic)
+            navigationController?.pushViewController(controller, animated: true)
+            
         default: break
         }
+    }
+    
+    /// tapActionHandler
+    /// - Parameter sender: UITapGestureRecognizer
+    @objc private func tapActionHandler(_ sender: UITapGestureRecognizer) {
+        let zoomScale: CGFloat = (1.0 ..< 2.0).contains(scrollView.zoomScale) == true ? 2.0 : 1.0
+        let newRect: CGRect = zoomRectWith(zoomScale, center: sender.location(in: .none))
+        scrollView.zoom(to: newRect, animated: true)
+    }
+    
+    /// zoomRectWith
+    /// - Parameters:
+    ///   - scale: CGFloat
+    ///   - center: CGPoint
+    /// - Returns: CGRect
+    private func zoomRectWith(_ scale: CGFloat, center: CGPoint) -> CGRect {
+        let newHeight: CGFloat = scrollView.bounds.height / scale
+        let newWidth: CGFloat = scrollView.bounds.width / scale
+        return .init(x: center.x - newWidth * 0.5, y: center.y - newHeight * 0.5, width: newWidth, height: newHeight)
     }
     
     /// completionHandler
     /// - Parameter handler: Optional<(ResultType) -> Void>
     internal func completionHandler(_ handler: Optional<(ResultType) -> Void>) {
         self.completionHandler = handler
+    }
+    
+}
+
+// MARK: - UIScrollViewDelegate
+extension PEEditImageViewController: UIScrollViewDelegate {
+    
+    /// viewForZooming
+    /// - Parameter scrollView: UIScrollView
+    /// - Returns: UIView
+    internal func viewForZooming(in scrollView: UIScrollView) -> UIView? {
+        return imgView
     }
     
 }

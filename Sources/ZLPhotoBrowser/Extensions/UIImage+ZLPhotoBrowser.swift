@@ -531,6 +531,21 @@ extension ZLPhotoBrowserWrapper where Base: UIImage {
         }
         return UIImage(named: named, in: Bundle.zlPhotoBrowserBundle, compatibleWith: nil)
     }
+    
+    /// moduleImage
+    /// - Parameter named: String
+    /// - Returns:  Optional<UIImage>
+    internal static func moduleImage(_ named: String) -> Optional<UIImage> {
+        if ZLCustomImageDeploy.imageNames.contains(named), let newImage = UIImage(named: named) {
+            return newImage
+        } else if let newImage = ZLCustomImageDeploy.imageForKey[named] {
+            return newImage
+        } else if let newImage: UIImage = UIImage(named: named, in: Bundle.zlPhotoBrowserBundle, compatibleWith: nil) {
+            return newImage
+        } else {
+            return .init(named: named, in: .module, compatibleWith: .none)
+        }
+    }
 }
 
 public extension ZLPhotoBrowserWrapper where Base: CIImage {

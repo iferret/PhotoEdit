@@ -51,11 +51,20 @@ class PEImageViewController: UIViewController {
     private lazy var toolbar: UIToolbar = {
         let _toolbar: UIToolbar = .init(frame: .init(x: 0.0, y: 0.0, width: view.bounds.width, height: 52.0))
         _toolbar.standardAppearance = .init()
-        _toolbar.standardAppearance.configureWithOpaqueBackground()
-        _toolbar.standardAppearance.backgroundColor = .hex("#141414")
-        _toolbar.backgroundColor = .hex("#141414")
+        _toolbar.standardAppearance.configureWithTransparentBackground()
+        _toolbar.backgroundColor = .clear
         _toolbar.items = [redoItem, .flexible(), editItem, .flexible(), useItem]
         return _toolbar
+    }()
+    
+    /// UIView
+    private lazy var bottomView: PEGradientView = {
+        let _bottomView: PEGradientView = .init(frame: .zero)
+        _bottomView.colors = [.hex("#141414", alpha: 0.0), .hex("#141414", alpha: 0.9)]
+        _bottomView.backgroundColor = .clear
+        _bottomView.startPoint = .init(x: 1.0, y: 0.0)
+        _bottomView.endPoint = .init(x: 1.0, y: 1.0)
+        return _bottomView
     }()
     
     /// UIImage
@@ -103,9 +112,15 @@ extension PEImageViewController {
             $0.height.equalTo(view.safeAreaLayoutGuide.snp.width).multipliedBy(uiImage.size.height / uiImage.size.width)
         }
         
-        view.addSubview(toolbar)
+        view.addSubview(bottomView)
+        bottomView.snp.makeConstraints {
+            $0.left.right.bottom.equalToSuperview()
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-52.0)
+        }
+        
+        bottomView.addSubview(toolbar)
         toolbar.snp.makeConstraints {
-            $0.left.right.bottom.equalTo(view.safeAreaLayoutGuide)
+            $0.left.right.top.equalToSuperview()
             $0.height.equalTo(52.0)
         }
     }
@@ -117,7 +132,7 @@ extension PEImageViewController {
         case redoItem:
             navigationController?.popViewController(animated: true)
         case editItem:
-            let controller: PEImageEditViewController = .init(uiImage: uiImage)
+            let controller: PEEditImageViewController = .init(uiImage: uiImage)
             controller.completionHandler {[weak self] result in
                 guard let this = self else { return }
                 switch result {

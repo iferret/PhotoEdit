@@ -172,9 +172,9 @@ public extension ZLProgressHUD {
         var icon: UIImage? {
             switch self {
             case .light, .lightBlur:
-                return .zl.getImage("zl_loading_dark")
+                return .zl.moduleImage("zl_loading_dark")
             case .dark, .darkBlur:
-                return .zl.getImage("zl_loading_light")
+                return .zl.moduleImage("zl_loading_light")
             }
         }
         

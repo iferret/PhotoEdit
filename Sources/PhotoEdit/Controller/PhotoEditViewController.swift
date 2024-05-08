@@ -71,7 +71,7 @@ extension PhotoEditViewController {
             first.completionHandler(handler)
         }
         // 关联图片编辑
-        if let first = viewControllers.first as? PEImageEditViewController {
+        if let first = viewControllers.first as? PEEditImageViewController {
             first.completionHandler(handler)
         }
     }

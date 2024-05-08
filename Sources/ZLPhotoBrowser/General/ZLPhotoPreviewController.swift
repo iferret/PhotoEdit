@@ -74,7 +74,7 @@ class ZLPhotoPreviewController: UIViewController {
     
     private lazy var backBtn: UIButton = {
         let btn = UIButton(type: .custom)
-        var image = UIImage.zl.getImage("zl_navBack")
+        var image = UIImage.zl.moduleImage("zl_navBack")
         if isRTL() {
             image = image?.imageFlippedForRightToLeftLayoutDirection()
             btn.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: -10)
@@ -88,8 +88,8 @@ class ZLPhotoPreviewController: UIViewController {
     
     private lazy var selectBtn: ZLEnlargeButton = {
         let btn = ZLEnlargeButton(type: .custom)
-        btn.setImage(.zl.getImage("zl_btn_unselected_with_check"), for: .normal)
-        btn.setImage(.zl.getImage("zl_btn_selected"), for: .selected)
+        btn.setImage(.zl.moduleImage("zl_btn_unselected_with_check"), for: .normal)
+        btn.setImage(.zl.moduleImage("zl_btn_selected"), for: .selected)
         btn.enlargeInset = 10
         btn.addTarget(self, action: #selector(selectBtnClick), for: .touchUpInside)
         return btn
@@ -128,9 +128,9 @@ class ZLPhotoPreviewController: UIViewController {
         btn.titleLabel?.lineBreakMode = .byCharWrapping
         btn.titleLabel?.numberOfLines = 2
         btn.contentHorizontalAlignment = .left
-        btn.setImage(.zl.getImage("zl_btn_original_circle"), for: .normal)
-        btn.setImage(.zl.getImage("zl_btn_original_selected"), for: .selected)
-        btn.setImage(.zl.getImage("zl_btn_original_selected"), for: [.selected, .highlighted])
+        btn.setImage(.zl.moduleImage("zl_btn_original_circle"), for: .normal)
+        btn.setImage(.zl.moduleImage("zl_btn_original_selected"), for: .selected)
+        btn.setImage(.zl.moduleImage("zl_btn_original_selected"), for: [.selected, .highlighted])
         btn.adjustsImageWhenHighlighted = false
         if isRTL() {
             btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 5)
@@ -1226,7 +1226,7 @@ class ZLPhotoPreviewSelectedViewCell: UICollectionViewCell {
         
         if model.type == .video {
             tagImageView.isHidden = false
-            tagImageView.image = .zl.getImage("zl_video")
+            tagImageView.image = .zl.moduleImage("zl_video")
             tagLabel.isHidden = true
         } else if ZLPhotoConfiguration.default().allowSelectGif, model.type == .gif {
             tagImageView.isHidden = true
@@ -1234,12 +1234,12 @@ class ZLPhotoPreviewSelectedViewCell: UICollectionViewCell {
             tagLabel.text = "GIF"
         } else if ZLPhotoConfiguration.default().allowSelectLivePhoto, model.type == .livePhoto {
             tagImageView.isHidden = false
-            tagImageView.image = .zl.getImage("zl_livePhoto")
+            tagImageView.image = .zl.moduleImage("zl_livePhoto")
             tagLabel.isHidden = true
         } else {
             if let _ = model.editImage {
                 tagImageView.isHidden = false
-                tagImageView.image = .zl.getImage("zl_editImage_tag")
+                tagImageView.image = .zl.moduleImage("zl_editImage_tag")
             } else {
                 tagImageView.isHidden = true
                 tagLabel.isHidden = true

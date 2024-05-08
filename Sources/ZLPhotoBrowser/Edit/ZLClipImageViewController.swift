@@ -108,28 +108,28 @@ open class ZLClipImageViewController: UIViewController {
         return pan
     }()
     
-    public lazy var bottomToolView = UIView()
+    // public lazy var bottomToolView = UIView()
     
-    private lazy var bottomShadowLayer: CAGradientLayer = {
-        let layer = CAGradientLayer()
-        layer.colors = [
-            UIColor.black.withAlphaComponent(0.15).cgColor,
-            UIColor.black.withAlphaComponent(0.35).cgColor
-        ]
-        layer.locations = [0, 1]
-        return layer
-    }()
+//    private lazy var bottomShadowLayer: CAGradientLayer = {
+//        let layer = CAGradientLayer()
+//        layer.colors = [
+//            UIColor.black.withAlphaComponent(0.15).cgColor,
+//            UIColor.black.withAlphaComponent(0.35).cgColor
+//        ]
+//        layer.locations = [0, 1]
+//        return layer
+//    }()
     
-    private lazy var bottomToolLineView: UIView = {
-        let view = UIView()
-        // view.backgroundColor = .zl.rgba(240, 240, 240)
-        view.backgroundColor = .clear
-        return view
-    }()
+//    private lazy var bottomToolLineView: UIView = {
+//        let view = UIView()
+//        // view.backgroundColor = .zl.rgba(240, 240, 240)
+//        view.backgroundColor = .clear
+//        return view
+//    }()
     
     //    private lazy var cancelBtn: ZLEnlargeButton = {
     //        let btn = ZLEnlargeButton(type: .custom)
-    //        btn.setImage(.zl.getImage("zl_close"), for: .normal)
+    //        btn.setImage(.zl.moduleImage("zl_close"), for: .normal)
     //        btn.adjustsImageWhenHighlighted = false
     //        btn.enlargeInset = 20
     //        btn.addTarget(self, action: #selector(cancelBtnClick), for: .touchUpInside)
@@ -148,7 +148,7 @@ open class ZLClipImageViewController: UIViewController {
     
     //    lazy var doneBtn: ZLEnlargeButton = {
     //        let btn = ZLEnlargeButton(type: .custom)
-    //        btn.setImage(.zl.getImage("zl_right"), for: .normal)
+    //        btn.setImage(.zl.moduleImage("zl_right"), for: .normal)
     //        btn.adjustsImageWhenHighlighted = false
     //        btn.enlargeInset = 20
     //        btn.addTarget(self, action: #selector(doneBtnClick), for: .touchUpInside)
@@ -157,7 +157,7 @@ open class ZLClipImageViewController: UIViewController {
     
     //    private lazy var rotateBtn: ZLEnlargeButton = {
     //        let btn = ZLEnlargeButton(type: .custom)
-    //        btn.setImage(.zl.getImage("zl_rotateimage"), for: .normal)
+    //        btn.setImage(.zl.moduleImage("zl_rotateimage"), for: .normal)
     //        btn.adjustsImageWhenHighlighted = false
     //        btn.enlargeInset = 20
     //        btn.addTarget(self, action: #selector(rotateBtnClick), for: .touchUpInside)
@@ -304,7 +304,7 @@ open class ZLClipImageViewController: UIViewController {
             cancelClipAnimateFrame = clipBoxFrame
             UIView.animate(withDuration: 0.25, animations: {
                 animateImageView.frame = self.clipBoxFrame
-                self.bottomToolView.alpha = 1
+                // self.bottomToolView.alpha = 1
                 // self.rotateBtn.alpha = 1
                 // self.clipRatioColView.alpha = self.clipRatios.count <= 1 ? 0 : 1
             }) { _ in
@@ -317,7 +317,7 @@ open class ZLClipImageViewController: UIViewController {
                 }
             }
         } else {
-            bottomToolView.alpha = 1
+            // bottomToolView.alpha = 1
             // rotateBtn.alpha = 1
             mainScrollView.alpha = 1
             overlayView.alpha = 1
@@ -337,10 +337,10 @@ open class ZLClipImageViewController: UIViewController {
         
         layoutInitialImage()
         
-        bottomToolView.frame = CGRect(x: 0, y: view.bounds.height - ZLClipImageViewController.bottomToolViewH, width: view.bounds.width, height: ZLClipImageViewController.bottomToolViewH)
-        bottomShadowLayer.frame = bottomToolView.bounds
+        // bottomToolView.frame = CGRect(x: 0, y: view.bounds.height - ZLClipImageViewController.bottomToolViewH, width: view.bounds.width, height: ZLClipImageViewController.bottomToolViewH)
+        // bottomShadowLayer.frame = bottomToolView.bounds
         
-        bottomToolLineView.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: 1 / UIScreen.main.scale)
+        // bottomToolLineView.frame = CGRect(x: 0, y: 0, width: view.bounds.width, height: 1 / UIScreen.main.scale)
         // let toolBtnH: CGFloat = 25
         // let toolBtnY = (ZLClipImageViewController.bottomToolViewH - toolBtnH) / 2 - 10
         // cancelBtn.frame = CGRect(x: 30, y: toolBtnY, width: toolBtnH, height: toolBtnH)
@@ -373,9 +373,9 @@ open class ZLClipImageViewController: UIViewController {
         view.addSubview(shadowView)
         view.addSubview(overlayView)
         
-        view.addSubview(bottomToolView)
-        bottomToolView.layer.addSublayer(bottomShadowLayer)
-        bottomToolView.addSubview(bottomToolLineView)
+        // view.addSubview(bottomToolView)
+        // bottomToolView.layer.addSublayer(bottomShadowLayer)
+        // bottomToolView.addSubview(bottomToolLineView)
         // bottomToolView.addSubview(cancelBtn)
         // bottomToolView.addSubview(revertBtn)
         // bottomToolView.addSubview(doneBtn)
@@ -389,7 +389,7 @@ open class ZLClipImageViewController: UIViewController {
         mainScrollView.alpha = 0
         overlayView.alpha = 0
         shadowView.alpha = 0
-        bottomToolView.alpha = 0
+        // bottomToolView.alpha = 0
         // rotateBtn.alpha = 0
     }
     

@@ -490,7 +490,7 @@ class ZLVideoPreviewCell: ZLPreviewBaseCell {
     
     private lazy var playBtn: UIButton = {
         let btn = UIButton(type: .custom)
-        btn.setImage(.zl.getImage("zl_playVideo"), for: .normal)
+        btn.setImage(.zl.moduleImage("zl_playVideo"), for: .normal)
         btn.addTarget(self, action: #selector(playBtnClick), for: .touchUpInside)
         return btn
     }()
@@ -504,7 +504,7 @@ class ZLVideoPreviewCell: ZLPreviewBaseCell {
     private lazy var syncErrorLabel: UILabel = {
         let attStr = NSMutableAttributedString()
         let attach = NSTextAttachment()
-        attach.image = .zl.getImage("zl_videoLoadFailed")
+        attach.image = .zl.moduleImage("zl_videoLoadFailed")
         attach.bounds = CGRect(x: 0, y: -10, width: 30, height: 30)
         attStr.append(NSAttributedString(attachment: attach))
         let errorText = NSAttributedString(
@@ -659,7 +659,7 @@ class ZLVideoPreviewCell: ZLPreviewBaseCell {
     }
     
     private func configurePlayerLayer(_ item: AVPlayerItem) {
-        playBtn.setImage(.zl.getImage("zl_playVideo"), for: .normal)
+        playBtn.setImage(.zl.moduleImage("zl_playVideo"), for: .normal)
         playBtn.isEnabled = true
         
         NotificationCenter.default.removeObserver(self, name: .AVPlayerItemDidPlayToEndTime, object: player?.currentItem)
@@ -711,7 +711,7 @@ class ZLVideoPreviewCell: ZLPreviewBaseCell {
             player?.seek(to: .zero)
         }
         
-        playBtn.setImage(.zl.getImage("zl_playVideo"), for: .normal)
+        playBtn.setImage(.zl.moduleImage("zl_playVideo"), for: .normal)
         singleTapBlock?()
     }
     
@@ -730,7 +730,7 @@ class ZLNetVideoPreviewCell: ZLPreviewBaseCell {
     
     private lazy var playBtn: UIButton = {
         let btn = UIButton(type: .custom)
-        btn.setImage(.zl.getImage("zl_playVideo"), for: .normal)
+        btn.setImage(.zl.moduleImage("zl_playVideo"), for: .normal)
         btn.addTarget(self, action: #selector(playBtnClick), for: .touchUpInside)
         return btn
     }()
@@ -822,7 +822,7 @@ class ZLNetVideoPreviewCell: ZLPreviewBaseCell {
             player?.seek(to: .zero)
         }
         
-        playBtn.setImage(.zl.getImage("zl_playVideo"), for: .normal)
+        playBtn.setImage(.zl.moduleImage("zl_playVideo"), for: .normal)
         singleTapBlock?()
     }
     

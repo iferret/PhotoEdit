@@ -12,9 +12,6 @@ import Hero
 
 /// PEClipImageViewController
 class PEClipImageViewController: ZLClipImageViewController {
-    // next
-    typealias ResultType = PhotoEditViewController.ResultType
-    
     // MARK: 私有属性
     
     /// 返回
@@ -29,7 +26,7 @@ class PEClipImageViewController: ZLClipImageViewController {
     private lazy var undoItem: UIBarButtonItem = {
         let _item: UIBarButtonItem = .init(title: "还原", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#666666")], for: .disabled)
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
         _item.isEnabled = false
         return _item
@@ -39,9 +36,9 @@ class PEClipImageViewController: ZLClipImageViewController {
     private lazy var doneItem: UIBarButtonItem = {
         let _item: UIBarButtonItem = .init(title: "完成", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#666666")], for: .disabled)
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
-        _item.isEnabled = false
+        // _item.isEnabled = false
         return _item
     }()
     
@@ -49,11 +46,20 @@ class PEClipImageViewController: ZLClipImageViewController {
     private lazy var bottomBar: UIToolbar = {
         let _toolbar: UIToolbar = .init(frame: .init(x: 0.0, y: 0.0, width: view.bounds.width, height: 52.0))
         _toolbar.standardAppearance = .init()
-        _toolbar.standardAppearance.configureWithOpaqueBackground()
-        _toolbar.standardAppearance.backgroundColor = .clear
+        _toolbar.standardAppearance.configureWithTransparentBackground()
         _toolbar.backgroundColor = .clear
         _toolbar.items = [backItem, .flexible(), undoItem, .flexible(), doneItem]
         return _toolbar
+    }()
+    
+    /// UIView
+    private lazy var bottomView: PEGradientView = {
+        let _bottomView: PEGradientView = .init(frame: .zero)
+        _bottomView.colors = [.hex("#141414", alpha: 0.0), .hex("#141414", alpha: 0.9)]
+        _bottomView.backgroundColor = .clear
+        _bottomView.startPoint = .init(x: 1.0, y: 0.0)
+        _bottomView.endPoint = .init(x: 1.0, y: 1.0)
+        return _bottomView
     }()
     
     /// 旋转
@@ -75,8 +81,8 @@ class PEClipImageViewController: ZLClipImageViewController {
     
     /// Bool
     private var beforeNavigationBarHidden: Bool = false
-    /// Optional<(ResultType) -> Void>
-    private var completionHandler: Optional<(ResultType) -> Void> = .none
+    /// Optional<(_ newImage: UIImage) -> Void>
+    private var completionHandler: Optional<(_ newImage: UIImage) -> Void> = .none
     /// UIImage
     private let origiImage: UIImage
     
@@ -133,10 +139,17 @@ extension PEClipImageViewController {
         // coding here ...
         view.backgroundColor = .hex("#000000")
         navigationItem.leftBarButtonItem = .disabled
-        bottomToolView.backgroundColor = .hex("#141414")
+        // bottomToolView.isHidden = true
         
         // 布局
-        bottomToolView.addSubview(bottomBar)
+        
+        view.addSubview(bottomView)
+        bottomView.snp.makeConstraints {
+            $0.left.right.bottom.equalToSuperview()
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-52.0)
+        }
+        
+        bottomView.addSubview(bottomBar)
         bottomBar.snp.makeConstraints {
             $0.left.right.top.equalToSuperview()
             $0.height.equalTo(52.0)
@@ -145,7 +158,7 @@ extension PEClipImageViewController {
         view.addSubview(toolbar)
         toolbar.snp.makeConstraints {
             $0.left.right.equalToSuperview()
-            $0.bottom.equalTo(bottomBar.snp.top).offset(-24.0)
+            $0.bottom.equalTo(bottomBar.snp.top).offset(-16.0)
             $0.height.equalTo(32.0)
         }
     }
@@ -159,12 +172,12 @@ extension PEClipImageViewController {
         case undoItem:
             undoActionHandler()
             undoItem.isEnabled = false
-            doneItem.isEnabled = false
+            // doneItem.isEnabled = false
         case rotationItem:
             rotateActionHandler()
         case doneItem:
             let newImage: UIImage = clipImageWith(origiImage)
-            completionHandler?(.photo(newImage))
+            completionHandler?(newImage)
             navigationController?.popViewController(animated: true)
             
         default: break
@@ -172,8 +185,8 @@ extension PEClipImageViewController {
     }
     
     /// completionHandler
-    /// - Parameter handler: Optional<(ResultType) -> Void>
-    internal func completionHandler(_ handler: Optional<(ResultType) -> Void>) {
+    /// - Parameter handler: Optional<(UIImage) -> Void>
+    internal func completionHandler(_ handler: Optional<(UIImage) -> Void>) {
         self.completionHandler = handler
     }
 }

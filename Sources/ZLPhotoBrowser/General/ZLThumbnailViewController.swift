@@ -74,9 +74,9 @@ class ZLThumbnailViewController: UIViewController {
         btn.titleLabel?.lineBreakMode = .byCharWrapping
         btn.titleLabel?.numberOfLines = 2
         btn.contentHorizontalAlignment = .left
-        btn.setImage(.zl.getImage("zl_btn_original_circle"), for: .normal)
-        btn.setImage(.zl.getImage("zl_btn_original_selected"), for: .selected)
-        btn.setImage(.zl.getImage("zl_btn_original_selected"), for: [.selected, .highlighted])
+        btn.setImage(.zl.moduleImage("zl_btn_original_circle"), for: .normal)
+        btn.setImage(.zl.moduleImage("zl_btn_original_selected"), for: .selected)
+        btn.setImage(.zl.moduleImage("zl_btn_original_selected"), for: [.selected, .highlighted])
         btn.adjustsImageWhenHighlighted = false
         if isRTL() {
             btn.titleEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 5)
@@ -108,7 +108,7 @@ class ZLThumbnailViewController: UIViewController {
     
     private lazy var scrollToBottomBtn: UIButton = {
         let btn = UIButton(type: .custom)
-        btn.setImage(.zl.getImage("zl_arrow_down"), for: .normal)
+        btn.setImage(.zl.moduleImage("zl_arrow_down"), for: .normal)
         btn.addTarget(self, action: #selector(scrollToBottomBtnClick), for: .touchUpInside)
         btn.zl.addShadow(color: .zl.rgba(35, 35, 35), radius: 5, opacity: 1, offset: CGSize(width: 0, height: 3))
         return btn
@@ -1559,7 +1559,7 @@ class ZLEmbedAlbumListNavView: UIView {
     }()
     
     private lazy var arrow: UIImageView = {
-        let view = UIImageView(image: .zl.getImage("zl_downArrow"))
+        let view = UIImageView(image: .zl.moduleImage("zl_downArrow"))
         view.clipsToBounds = true
         view.contentMode = .scaleAspectFill
         return view
@@ -1572,7 +1572,7 @@ class ZLEmbedAlbumListNavView: UIView {
             btn.setTitle(localLanguageTextValue(.cancel), for: .normal)
             btn.setTitleColor(.zl.navTitleColor, for: .normal)
         } else {
-            btn.setImage(.zl.getImage("zl_navClose"), for: .normal)
+            btn.setImage(.zl.moduleImage("zl_navClose"), for: .normal)
         }
         btn.addTarget(self, action: #selector(cancelBtnClick), for: .touchUpInside)
         return btn
@@ -1712,7 +1712,7 @@ class ZLExternalAlbumListNavView: UIView {
             btn.setTitle(localLanguageTextValue(.cancel), for: .normal)
             btn.setTitleColor(.zl.navTitleColor, for: .normal)
         } else {
-            btn.setImage(.zl.getImage("zl_navClose"), for: .normal)
+            btn.setImage(.zl.moduleImage("zl_navClose"), for: .normal)
         }
         btn.addTarget(self, action: #selector(cancelBtnClick), for: .touchUpInside)
         return btn
@@ -1721,7 +1721,7 @@ class ZLExternalAlbumListNavView: UIView {
     lazy var backBtn: UIButton = {
         let btn = UIButton(type: .custom)
         
-        var image = UIImage.zl.getImage("zl_navBack")
+        var image = UIImage.zl.moduleImage("zl_navBack")
         if isRTL() {
             image = image?.imageFlippedForRightToLeftLayoutDirection()
             btn.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: -10)
@@ -1806,7 +1806,7 @@ class ZLExternalAlbumListNavView: UIView {
 class ZLLimitedAuthorityTipsView: UIView {
     static let height: CGFloat = 70
     
-    private lazy var icon = UIImageView(image: .zl.getImage("zl_warning"))
+    private lazy var icon = UIImageView(image: .zl.moduleImage("zl_warning"))
     
     private lazy var tipsLabel: UILabel = {
         let label = UILabel()
@@ -1820,7 +1820,7 @@ class ZLLimitedAuthorityTipsView: UIView {
         return label
     }()
     
-    private lazy var arrow = UIImageView(image: .zl.getImage("zl_right_arrow"))
+    private lazy var arrow = UIImageView(image: .zl.moduleImage("zl_right_arrow"))
     
     override init(frame: CGRect) {
         super.init(frame: frame)

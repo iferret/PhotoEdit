@@ -59,7 +59,7 @@ class ZLAlbumListCell: UITableViewCell {
     private var style: ZLPhotoBrowserStyle = .embedAlbumList
     
     private var indicator: UIImageView = {
-        var image = UIImage.zl.getImage("zl_ablumList_arrow")
+        var image = UIImage.zl.moduleImage("zl_ablumList_arrow")
         if isRTL() {
             image = image?.imageFlippedForRightToLeftLayoutDirection()
         }
@@ -73,7 +73,7 @@ class ZLAlbumListCell: UITableViewCell {
         let btn = UIButton(type: .custom)
         btn.isUserInteractionEnabled = false
         btn.isHidden = true
-        btn.setImage(.zl.getImage("zl_albumSelect"), for: .selected)
+        btn.setImage(.zl.moduleImage("zl_albumSelect"), for: .selected)
         return btn
     }()
     
@@ -198,7 +198,7 @@ class ZLAlbumListCell: UITableViewCell {
             let w = bounds.height * 2.5
             ZLPhotoManager.fetchImage(for: asset, size: CGSize(width: w, height: w)) { [weak self] image, _ in
                 if self?.imageIdentifier == self?.model.headImageAsset?.localIdentifier {
-                    self?.coverImageView.image = image ?? .zl.getImage("zl_defaultphoto")
+                    self?.coverImageView.image = image ?? .zl.moduleImage("zl_defaultphoto")
                 }
             }
         }
