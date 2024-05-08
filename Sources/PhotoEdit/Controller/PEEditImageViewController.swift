@@ -224,6 +224,12 @@ extension PEEditImageViewController {
      
         case drawItem: // 涂鸦
             let controller: PEDrawImageViewController = .init(uiImage: editImage, drawType: .mosaic)
+            controller.completionHandler {[weak self] newImage in
+                guard let this = self else { return }
+                this.editImage = newImage
+                this.imgView.image = newImage
+                this.undoItem.isEnabled = true
+            }
             navigationController?.pushViewController(controller, animated: true)
             
         default: break

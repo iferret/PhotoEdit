@@ -7,16 +7,97 @@
 
 import UIKit
 import ZLPhotoBrowser
+import SnapKit
 
 /// ZLEditImageViewController
 class PEDrawImageViewController: ZLEditImageViewController {
     
     // MARK: 私有属性
     
+    /// UIView
+    private lazy var bottomView: PEGradientView = {
+        let _bottomView: PEGradientView = .init(frame: .zero)
+        _bottomView.colors = [.hex("#141414", alpha: 0.0), .hex("#141414", alpha: 0.9)]
+        _bottomView.backgroundColor = .clear
+        _bottomView.startPoint = .init(x: 1.0, y: 0.0)
+        _bottomView.endPoint = .init(x: 1.0, y: 1.0)
+        return _bottomView
+    }()
+    
+    /// 底部工具栏
+    private lazy var bottomBar: UIToolbar = {
+        let _toolbar: UIToolbar = .init(frame: .init(x: 0.0, y: 0.0, width: view.bounds.width, height: 52.0))
+        _toolbar.standardAppearance = .init()
+        _toolbar.standardAppearance.configureWithOpaqueBackground()
+        _toolbar.standardAppearance.backgroundColor = .clear
+        _toolbar.standardAppearance.shadowColor = .clear
+        _toolbar.backgroundColor = .clear
+        _toolbar.items = [backItem, .flexible(), undoItem, .flexible(), doneItem]
+        return _toolbar
+    }()
+    
+    /// 返回
+    private lazy var backItem: UIBarButtonItem = {
+        let _item: UIBarButtonItem = .init(title: "返回", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
+        return _item
+    }()
+    
+    /// 还原
+    private lazy var undoItem: UIBarButtonItem = {
+        let _item: UIBarButtonItem = .init(title: "还原", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
+        _item.isEnabled = false
+        return _item
+    }()
+    
+    /// 完成
+    private lazy var doneItem: UIBarButtonItem = {
+        let _item: UIBarButtonItem = .init(title: "完成", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
+        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
+        // _item.isEnabled = false
+        return _item
+    }()
+    
+    /// 向后一步
+    private lazy var backwardItem: UIBarButtonItem = {
+        let _img: Optional<UIImage> = .moduleImage("draw_backward_disabled")?.withRenderingMode(.alwaysOriginal)
+        let _item: UIBarButtonItem = .init(image: _img, style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+        _item.isEnabled = false
+        return _item
+    }()
+    
+    /// 向前一步
+    private lazy var forewardItem: UIBarButtonItem = {
+        let _img: Optional<UIImage> = .moduleImage("draw_foreward_disabled")?.withRenderingMode(.alwaysOriginal)
+        let _item: UIBarButtonItem = .init(image: _img, style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+        _item.isEnabled = false
+        return _item
+    }()
+    
+    /// UIToolbar
+    private lazy var toolbar: UIToolbar = {
+        let _toolbar: UIToolbar = .init(frame: .init(x: 0.0, y: 0.0, width: view.bounds.width, height: 32.0))
+        _toolbar.standardAppearance = .init()
+        _toolbar.standardAppearance.configureWithTransparentBackground()
+        _toolbar.backgroundColor = .clear
+        _toolbar.items = [.flexible(), backwardItem, .fixed(18.0), forewardItem, .flexible()]
+        return _toolbar
+    }()
+    
     /// Bool
     private var beforeNavigationBarHidden: Bool = false
+    /// UIImage
+    private let originImage: UIImage
     /// DrawType
     private let drawType: DrawType
+    /// Optional<(_ newImage: UIImage) -> Void>
+    private var completionHandler: Optional<(_ newImage: UIImage) -> Void> = .none
     
     // MARK: 生命周期
     
@@ -25,6 +106,7 @@ class PEDrawImageViewController: ZLEditImageViewController {
     ///   - uiImage: UIImage
     ///   - drawType: DrawType
     internal init(uiImage: UIImage, drawType: DrawType) {
+        self.originImage = uiImage
         self.drawType = drawType
         super.init(image: uiImage, editModel: .default(editRect: .init(origin: .zero, size: uiImage.size)))
     }
@@ -54,7 +136,31 @@ class PEDrawImageViewController: ZLEditImageViewController {
         navigationController?.isNavigationBarHidden = beforeNavigationBarHidden
     }
     
-    
+    /// editorUpdate
+    /// - Parameters:
+    ///   - actions: [ZLEditorAction]
+    ///   - redoActions: [ZLEditorAction]
+    internal override func editorUpdate(didUpdateActions actions: [ZLEditorAction], redoActions: [ZLEditorAction]) {
+        super.editorUpdate(didUpdateActions: actions, redoActions: redoActions)
+        // next
+        if actions.isEmpty == false {
+            backwardItem.isEnabled = true
+            backwardItem.image = .moduleImage("draw_backward_normal")?.withRenderingMode(.alwaysOriginal)
+        } else {
+            backwardItem.isEnabled = false
+            backwardItem.image = .moduleImage("draw_backward_disabled")?.withRenderingMode(.alwaysOriginal)
+        }
+        // next
+        if actions.count != redoActions.count {
+            forewardItem.isEnabled = true
+            forewardItem.image = .moduleImage("draw_foreward_normal")?.withRenderingMode(.alwaysOriginal)
+        } else {
+            forewardItem.isEnabled = false
+            forewardItem.image = .moduleImage("draw_foreward_disabled")?.withRenderingMode(.alwaysOriginal)
+        }
+        // next
+        undoItem.isEnabled = actions.isEmpty == false
+    }
 }
 
 extension PEDrawImageViewController {
@@ -63,6 +169,28 @@ extension PEDrawImageViewController {
     private func initialize() {
         // coding here ...
         view.backgroundColor = .hex("#000000")
+        
+        // 布局
+        
+        view.addSubview(bottomView)
+        bottomView.snp.makeConstraints {
+            $0.left.right.equalTo(view.safeAreaLayoutGuide)
+            $0.bottom.equalToSuperview()
+            $0.top.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-52.0)
+        }
+        
+        bottomView.addSubview(bottomBar)
+        bottomBar.snp.makeConstraints {
+            $0.left.right.top.equalToSuperview()
+            $0.height.equalTo(52.0)
+        }
+        
+        view.addSubview(toolbar)
+        toolbar.snp.makeConstraints {
+            $0.left.right.equalToSuperview()
+            $0.bottom.equalTo(bottomBar.snp.top).offset(-16.0)
+            $0.height.equalTo(32.0)
+        }
     }
     
     /// reloadWith
@@ -76,6 +204,41 @@ extension PEDrawImageViewController {
         case .filter:       filterActionHanler()
         case .adjust:       adjustActionHanler()
         }
+    }
+    
+    /// itemActionHandler
+    /// - Parameter item: UIBarButtonItem
+    @objc private func itemActionHandler(_ item: UIBarButtonItem) {
+        switch item {
+        case backItem:
+            navigationController?.popViewController(animated: true)
+            
+        case backwardItem:
+            undoActionHandler()
+        case forewardItem:
+            redoActionHandler()
+        case undoItem: // 还原
+            var controllers: Array<UIViewController> = navigationController?.viewControllers.dropLast() ?? []
+            let controller: PEDrawImageViewController = .init(uiImage: originImage, drawType: drawType)
+            controller.completionHandler = completionHandler
+            controllers.append(controller)
+            navigationController?.setViewControllers(controllers, animated: false)
+            
+        case doneItem:
+            doneActionHandler {[weak self] newImage in
+                guard let this = self else { return }
+                this.completionHandler?(newImage)
+                this.navigationController?.popViewController(animated: true)
+            }
+            
+        default: break
+        }
+    }
+    
+    /// completionHandler
+    /// - Parameter handler: Optional<(UIImage) -> Void>
+    internal func completionHandler(_ handler: Optional<(UIImage) -> Void>) {
+        self.completionHandler = handler
     }
 }
 

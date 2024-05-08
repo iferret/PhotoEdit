@@ -99,6 +99,7 @@ public class ZLEditImageModel: NSObject {
 
 /// ZLEditImageViewController
 open class ZLEditImageViewController: UIViewController {
+    
     static let maxDrawLineImageWidth: CGFloat = 600
     
     static let shadowColorFrom = UIColor.black.withAlphaComponent(0.35).cgColor
@@ -320,51 +321,51 @@ open class ZLEditImageViewController: UIViewController {
     //        return btn
     //    }()
     
-    @objc public lazy var undoBtn: ZLEnlargeButton = {
-        let btn = ZLEnlargeButton(type: .custom)
-        if isRTL() {
-            btn.setImage(
-                .zl.moduleImage("zl_undo")?.imageFlippedForRightToLeftLayoutDirection(),
-                for: .normal
-            )
-            btn.setImage(
-                .zl.moduleImage("zl_undo_disable")?.imageFlippedForRightToLeftLayoutDirection(),
-                for: .disabled
-            )
-        } else {
-            btn.setImage(.zl.moduleImage("zl_undo"), for: .normal)
-            btn.setImage(.zl.moduleImage("zl_undo_disable"), for: .disabled)
-        }
-        
-        btn.adjustsImageWhenHighlighted = false
-        btn.isEnabled = !editorManager.actions.isEmpty
-        btn.enlargeInset = 8
-        btn.addTarget(self, action: #selector(undoBtnClick), for: .touchUpInside)
-        return btn
-    }()
+//    @objc public lazy var undoBtn: ZLEnlargeButton = {
+//        let btn = ZLEnlargeButton(type: .custom)
+//        if isRTL() {
+//            btn.setImage(
+//                .zl.moduleImage("zl_undo")?.imageFlippedForRightToLeftLayoutDirection(),
+//                for: .normal
+//            )
+//            btn.setImage(
+//                .zl.moduleImage("zl_undo_disable")?.imageFlippedForRightToLeftLayoutDirection(),
+//                for: .disabled
+//            )
+//        } else {
+//            btn.setImage(.zl.moduleImage("zl_undo"), for: .normal)
+//            btn.setImage(.zl.moduleImage("zl_undo_disable"), for: .disabled)
+//        }
+//        
+//        btn.adjustsImageWhenHighlighted = false
+//        btn.isEnabled = !editorManager.actions.isEmpty
+//        btn.enlargeInset = 8
+//        btn.addTarget(self, action: #selector(undoBtnClick), for: .touchUpInside)
+//        return btn
+//    }()
     
-    @objc public lazy var redoBtn: ZLEnlargeButton = {
-        let btn = ZLEnlargeButton(type: .custom)
-        if isRTL() {
-            btn.setImage(
-                .zl.moduleImage("zl_redo")?.imageFlippedForRightToLeftLayoutDirection(),
-                for: .normal
-            )
-            btn.setImage(
-                .zl.moduleImage("zl_redo_disable")?.imageFlippedForRightToLeftLayoutDirection(),
-                for: .disabled
-            )
-        } else {
-            btn.setImage(.zl.moduleImage("zl_redo"), for: .normal)
-            btn.setImage(.zl.moduleImage("zl_redo_disable"), for: .disabled)
-        }
-        
-        btn.adjustsImageWhenHighlighted = false
-        btn.isEnabled = editorManager.actions.count != editorManager.redoActions.count
-        btn.enlargeInset = 8
-        btn.addTarget(self, action: #selector(redoBtnClick), for: .touchUpInside)
-        return btn
-    }()
+//    @objc public lazy var redoBtn: ZLEnlargeButton = {
+//        let btn = ZLEnlargeButton(type: .custom)
+//        if isRTL() {
+//            btn.setImage(
+//                .zl.moduleImage("zl_redo")?.imageFlippedForRightToLeftLayoutDirection(),
+//                for: .normal
+//            )
+//            btn.setImage(
+//                .zl.moduleImage("zl_redo_disable")?.imageFlippedForRightToLeftLayoutDirection(),
+//                for: .disabled
+//            )
+//        } else {
+//            btn.setImage(.zl.moduleImage("zl_redo"), for: .normal)
+//            btn.setImage(.zl.moduleImage("zl_redo_disable"), for: .disabled)
+//        }
+//        
+//        btn.adjustsImageWhenHighlighted = false
+//        btn.isEnabled = editorManager.actions.count != editorManager.redoActions.count
+//        btn.enlargeInset = 8
+//        btn.addTarget(self, action: #selector(redoBtnClick), for: .touchUpInside)
+//        return btn
+//    }()
     
     @objc public lazy var eraserBtn: ZLEnlargeButton = {
         let btn = ZLEnlargeButton(type: .custom)
@@ -580,12 +581,12 @@ open class ZLEditImageViewController: UIViewController {
             ).width
         if isRTL() {
             cancelBtn.frame = CGRect(x: view.zl.width - 20 - 28, y: insets.top, width: cancelBtnW, height: 30)
-            redoBtn.frame = CGRect(x: 15, y: insets.top, width: 30, height: 30)
-            undoBtn.frame = CGRect(x: redoBtn.zl.right + 15, y: insets.top, width: 30, height: 30)
+            // redoBtn.frame = CGRect(x: 15, y: insets.top, width: 30, height: 30)
+            // undoBtn.frame = CGRect(x: redoBtn.zl.right + 15, y: insets.top, width: 30, height: 30)
         } else {
             cancelBtn.frame = CGRect(x: 20, y: insets.top, width: cancelBtnW, height: 30)
-            redoBtn.frame = CGRect(x: view.zl.width - 15 - 30, y: insets.top, width: 30, height: 30)
-            undoBtn.frame = CGRect(x: redoBtn.zl.left - 15 - 30, y: insets.top, width: 30, height: 30)
+            // redoBtn.frame = CGRect(x: view.zl.width - 15 - 30, y: insets.top, width: 30, height: 30)
+            // undoBtn.frame = CGRect(x: redoBtn.zl.left - 15 - 30, y: insets.top, width: 30, height: 30)
         }
         
         bottomShadowView.frame = CGRect(x: 0, y: view.zl.height - 150 - insets.bottom, width: view.zl.width, height: 150 + insets.bottom)
@@ -757,8 +758,8 @@ open class ZLEditImageViewController: UIViewController {
         topShadowView.layer.addSublayer(topShadowLayer)
         view.addSubview(topShadowView)
         topShadowView.addSubview(cancelBtn)
-        topShadowView.addSubview(undoBtn)
-        topShadowView.addSubview(redoBtn)
+        // topShadowView.addSubview(undoBtn)
+        // topShadowView.addSubview(redoBtn)
         
         bottomShadowView.layer.addSublayer(bottomShadowLayer)
         view.addSubview(bottomShadowView)
@@ -1031,6 +1032,10 @@ open class ZLEditImageViewController: UIViewController {
     public func filterActionHanler() { filterBtnClick() }
     /// filterActionHanler
     public func adjustActionHanler() { adjustBtnClick() }
+    /// undoActionHandler
+    public func undoActionHandler() { undoBtnClick() }
+    /// redoActionHandler
+    public func redoActionHandler() { redoBtnClick() }
     
     /// imageStickerBtnClick
     private func imageStickerBtnClick() {
@@ -1140,6 +1145,59 @@ open class ZLEditImageViewController: UIViewController {
         }
     }
     
+    /// doneActionHandler
+    /// - Parameter block: @escaping (_ newImage: UIImage) -> Void
+    public func doneActionHandler(_ block: @escaping (_ newImage: UIImage) -> Void) {
+        var stickerStates: [ZLBaseStickertState] = []
+        for view in stickersContainer.subviews {
+            guard let view = view as? ZLBaseStickerView else { continue }
+            stickerStates.append(view.state)
+        }
+        var hasEdit = true
+        if drawPaths.isEmpty,
+           currentClipStatus.editRect.size == imageSize,
+           currentClipStatus.angle == 0,
+           mosaicPaths.isEmpty,
+           stickerStates.isEmpty,
+           currentFilter.applier == nil,
+           currentAdjustStatus.allValueIsZero {
+            hasEdit = false
+        }
+        
+        var resImage = originalImage
+        var editModel: ZLEditImageModel?
+        
+        guard hasEdit == true else {
+            block(resImage)
+            return
+        }
+        // let hud = ZLProgressHUD.show(toast: .processing)
+        DispatchQueue.execute(inQueue: .main) {[weak self] in
+            guard let this = self else { return }
+            var newImage: UIImage = this.buildImage()
+            newImage = newImage.zl.clipImage(angle: this.currentClipStatus.angle,
+                                             editRect: this.currentClipStatus.editRect,
+                                             isCircle: this.currentClipStatus.ratio?.isCircle ?? false)
+            // hud.hide()
+            block(newImage)
+        }
+//        DispatchQueue.main.async { [self] in
+//            resImage = buildImage()
+//            resImage = resImage.zl.clipImage(angle: currentClipStatus.angle,
+//                                             editRect: currentClipStatus.editRect,
+//                                             isCircle: currentClipStatus.ratio?.isCircle ?? false)
+//            editModel = ZLEditImageModel(drawPaths: drawPaths,
+//                                         mosaicPaths: mosaicPaths,
+//                                         clipStatus: currentClipStatus,
+//                                         adjustStatus: currentAdjustStatus,
+//                                         selectFilter: currentFilter,
+//                                         stickers: stickerStates,
+//                                         actions: editorManager.actions)
+//            hud.hide()
+//            block(resImage)
+//        }
+    }
+    
     /// doneBtnClick
     @objc private func doneBtnClick() {
         var stickerStates: [ZLBaseStickertState] = []
@@ -1176,22 +1234,16 @@ open class ZLEditImageViewController: UIViewController {
         let hud = ZLProgressHUD.show(toast: .processing)
         DispatchQueue.main.async { [self] in
             resImage = buildImage()
-            resImage = resImage.zl
-                .clipImage(
-                    angle: currentClipStatus.angle,
-                    editRect: currentClipStatus.editRect,
-                    isCircle: currentClipStatus.ratio?.isCircle ?? false
-                )
-            editModel = ZLEditImageModel(
-                drawPaths: drawPaths,
-                mosaicPaths: mosaicPaths,
-                clipStatus: currentClipStatus,
-                adjustStatus: currentAdjustStatus,
-                selectFilter: currentFilter,
-                stickers: stickerStates,
-                actions: editorManager.actions
-            )
-            
+            resImage = resImage.zl.clipImage(angle: currentClipStatus.angle,
+                                             editRect: currentClipStatus.editRect,
+                                             isCircle: currentClipStatus.ratio?.isCircle ?? false)
+            editModel = ZLEditImageModel(drawPaths: drawPaths,
+                                         mosaicPaths: mosaicPaths,
+                                         clipStatus: currentClipStatus,
+                                         adjustStatus: currentAdjustStatus,
+                                         selectFilter: currentFilter,
+                                         stickers: stickerStates,
+                                         actions: editorManager.actions)
             hud.hide()
             callback()
         }
@@ -1801,6 +1853,13 @@ open class ZLEditImageViewController: UIViewController {
             self.adjustSlider?.alpha = 1
         }
     }
+    
+    /// hookEditorManager
+    /// - Parameters:
+    ///   - manager: ZLEditorManager
+    ///   - actions: [ZLEditorAction]
+    ///   - redoActions: [ZLEditorAction]
+    open func editorUpdate(didUpdateActions actions: [ZLEditorAction], redoActions: [ZLEditorAction]) { }
 }
 
 // MARK: - UIGestureRecognizerDelegate
@@ -2126,8 +2185,9 @@ extension ZLEditImageViewController: ZLEditorManagerDelegate {
     ///   - actions: [ZLEditorAction]
     ///   - redoActions: [ZLEditorAction]
     internal func editorManager(_ manager: ZLEditorManager, didUpdateActions actions: [ZLEditorAction], redoActions: [ZLEditorAction]) {
-        undoBtn.isEnabled = !actions.isEmpty
-        redoBtn.isEnabled = actions.count != redoActions.count
+        // undoBtn.isEnabled = !actions.isEmpty
+        // redoBtn.isEnabled = actions.count != redoActions.count
+        editorUpdate(didUpdateActions: actions, redoActions: redoActions)
     }
     
     /// undoAction
