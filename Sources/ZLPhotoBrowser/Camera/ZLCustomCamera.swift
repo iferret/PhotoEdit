@@ -100,7 +100,7 @@ open class ZLCustomCamera: UIViewController {
     
     public lazy var retakeBtn: ZLEnlargeButton = {
         let btn = ZLEnlargeButton(type: .custom)
-        btn.setImage(.zl.moduleImage("zl_retake"), for: .normal)
+        btn.setImage(.zl.getImage("zl_retake"), for: .normal)
         btn.addTarget(self, action: #selector(retakeBtnClick), for: .touchUpInside)
         btn.isHidden = true
         btn.adjustsImageWhenHighlighted = false
@@ -123,7 +123,7 @@ open class ZLCustomCamera: UIViewController {
     
     public lazy var dismissBtn: ZLEnlargeButton = {
         let btn = ZLEnlargeButton(type: .custom)
-        btn.setImage(.zl.moduleImage("zl_camera_close"), for: .normal)
+        btn.setImage(.zl.getImage("zl_camera_close"), for: .normal)
         btn.addTarget(self, action: #selector(dismissBtnClick), for: .touchUpInside)
         btn.adjustsImageWhenHighlighted = false
         btn.enlargeInset = 30
@@ -132,8 +132,8 @@ open class ZLCustomCamera: UIViewController {
     
     public lazy var flashBtn: ZLEnlargeButton = {
         let btn = ZLEnlargeButton(type: .custom)
-        btn.setImage(.zl.moduleImage("zl_flash_off"), for: .normal)
-        btn.setImage(.zl.moduleImage("zl_flash_on"), for: .selected)
+        btn.setImage(.zl.getImage("zl_flash_off"), for: .normal)
+        btn.setImage(.zl.getImage("zl_flash_on"), for: .selected)
         btn.addTarget(self, action: #selector(flashBtnClick), for: .touchUpInside)
         btn.adjustsImageWhenHighlighted = false
         btn.enlargeInset = 30
@@ -144,7 +144,7 @@ open class ZLCustomCamera: UIViewController {
         let cameraCount = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera], mediaType: .video, position: .unspecified).devices.count
         
         let btn = ZLEnlargeButton(type: .custom)
-        btn.setImage(.zl.moduleImage("zl_toggle_camera"), for: .normal)
+        btn.setImage(.zl.getImage("zl_toggle_camera"), for: .normal)
         btn.addTarget(self, action: #selector(switchCameraBtnClick), for: .touchUpInside)
         btn.adjustsImageWhenHighlighted = false
         btn.enlargeInset = 30
@@ -153,7 +153,7 @@ open class ZLCustomCamera: UIViewController {
     }()
     
     public lazy var focusCursorView: UIImageView = {
-        let view = UIImageView(image: .zl.moduleImage("zl_focus"))
+        let view = UIImageView(image: .zl.getImage("zl_focus"))
         view.contentMode = .scaleAspectFit
         view.clipsToBounds = true
         view.frame = CGRect(x: 0, y: 0, width: 70, height: 70)

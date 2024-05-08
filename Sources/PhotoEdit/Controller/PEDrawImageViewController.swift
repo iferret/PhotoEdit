@@ -210,12 +210,11 @@ extension PEDrawImageViewController {
     /// - Parameter item: UIBarButtonItem
     @objc private func itemActionHandler(_ item: UIBarButtonItem) {
         switch item {
-        case backItem:
+        case backItem: // 返回操作
             navigationController?.popViewController(animated: true)
-            
-        case backwardItem:
+        case backwardItem: // 向后一步
             undoActionHandler()
-        case forewardItem:
+        case forewardItem: // 向前一步
             redoActionHandler()
         case undoItem: // 还原
             var controllers: Array<UIViewController> = navigationController?.viewControllers.dropLast() ?? []
@@ -223,8 +222,7 @@ extension PEDrawImageViewController {
             controller.completionHandler = completionHandler
             controllers.append(controller)
             navigationController?.setViewControllers(controllers, animated: false)
-            
-        case doneItem:
+        case doneItem: // 完成操作
             doneActionHandler {[weak self] newImage in
                 guard let this = self else { return }
                 this.completionHandler?(newImage)

@@ -87,7 +87,7 @@ public class ZLImagePreviewController: UIViewController {
     
     private lazy var backBtn: UIButton = {
         let btn = UIButton(type: .custom)
-        var image = UIImage.zl.moduleImage("zl_navBack")
+        var image = UIImage.zl.getImage("zl_navBack")
         if isRTL() {
             image = image?.imageFlippedForRightToLeftLayoutDirection()
             btn.imageEdgeInsets = UIEdgeInsets(top: 0, left: 0, bottom: 0, right: -10)
@@ -109,8 +109,8 @@ public class ZLImagePreviewController: UIViewController {
     
     private lazy var selectBtn: ZLEnlargeButton = {
         let btn = ZLEnlargeButton(type: .custom)
-        btn.setImage(.zl.moduleImage("zl_btn_unselected_with_check"), for: .normal)
-        btn.setImage(.zl.moduleImage("zl_btn_selected"), for: .selected)
+        btn.setImage(.zl.getImage("zl_btn_unselected_with_check"), for: .normal)
+        btn.setImage(.zl.getImage("zl_btn_selected"), for: .selected)
         btn.enlargeInset = 10
         btn.addTarget(self, action: #selector(selectBtnClick), for: .touchUpInside)
         return btn

@@ -33,26 +33,26 @@ class ZLEditToolCell: UICollectionViewCell {
         didSet {
             switch toolType {
             case .draw:
-                icon.image = .zl.moduleImage("zl_drawLine")
-                icon.highlightedImage = .zl.moduleImage("zl_drawLine_selected")
+                icon.image = .zl.getImage("zl_drawLine")
+                icon.highlightedImage = .zl.getImage("zl_drawLine_selected")
             case .clip:
-                icon.image = .zl.moduleImage("zl_clip")
-                icon.highlightedImage = .zl.moduleImage("zl_clip")
+                icon.image = .zl.getImage("zl_clip")
+                icon.highlightedImage = .zl.getImage("zl_clip")
             case .imageSticker:
-                icon.image = .zl.moduleImage("zl_imageSticker")
-                icon.highlightedImage = .zl.moduleImage("zl_imageSticker")
+                icon.image = .zl.getImage("zl_imageSticker")
+                icon.highlightedImage = .zl.getImage("zl_imageSticker")
             case .textSticker:
-                icon.image = .zl.moduleImage("zl_textSticker")
-                icon.highlightedImage = .zl.moduleImage("zl_textSticker")
+                icon.image = .zl.getImage("zl_textSticker")
+                icon.highlightedImage = .zl.getImage("zl_textSticker")
             case .mosaic:
-                icon.image = .zl.moduleImage("zl_mosaic")
-                icon.highlightedImage = .zl.moduleImage("zl_mosaic_selected")
+                icon.image = .zl.getImage("zl_mosaic")
+                icon.highlightedImage = .zl.getImage("zl_mosaic_selected")
             case .filter:
-                icon.image = .zl.moduleImage("zl_filter")
-                icon.highlightedImage = .zl.moduleImage("zl_filter_selected")
+                icon.image = .zl.getImage("zl_filter")
+                icon.highlightedImage = .zl.getImage("zl_filter_selected")
             case .adjust:
-                icon.image = .zl.moduleImage("zl_adjust")
-                icon.highlightedImage = .zl.moduleImage("zl_adjust_selected")
+                icon.image = .zl.getImage("zl_adjust")
+                icon.highlightedImage = .zl.getImage("zl_adjust_selected")
             }
             if let color = UIColor.zl.imageEditorToolIconTintColor {
                 icon.highlightedImage = icon.highlightedImage?
@@ -190,16 +190,16 @@ class ZLAdjustToolCell: UICollectionViewCell {
         didSet {
             switch adjustTool {
             case .brightness:
-                imageView.image = .zl.moduleImage("zl_brightness")
-                imageView.highlightedImage = .zl.moduleImage("zl_brightness_selected")
+                imageView.image = .zl.getImage("zl_brightness")
+                imageView.highlightedImage = .zl.getImage("zl_brightness_selected")
                 nameLabel.text = localLanguageTextValue(.brightness)
             case .contrast:
-                imageView.image = .zl.moduleImage("zl_contrast")
-                imageView.highlightedImage = .zl.moduleImage("zl_contrast_selected")
+                imageView.image = .zl.getImage("zl_contrast")
+                imageView.highlightedImage = .zl.getImage("zl_contrast_selected")
                 nameLabel.text = localLanguageTextValue(.contrast)
             case .saturation:
-                imageView.image = .zl.moduleImage("zl_saturation")
-                imageView.highlightedImage = .zl.moduleImage("zl_saturation_selected")
+                imageView.image = .zl.getImage("zl_saturation")
+                imageView.highlightedImage = .zl.getImage("zl_saturation_selected")
                 nameLabel.text = localLanguageTextValue(.saturation)
             }
             if let color = UIColor.zl.imageEditorToolIconTintColor {

@@ -325,16 +325,16 @@ open class ZLEditImageViewController: UIViewController {
 //        let btn = ZLEnlargeButton(type: .custom)
 //        if isRTL() {
 //            btn.setImage(
-//                .zl.moduleImage("zl_undo")?.imageFlippedForRightToLeftLayoutDirection(),
+//                .zl.getImage("zl_undo")?.imageFlippedForRightToLeftLayoutDirection(),
 //                for: .normal
 //            )
 //            btn.setImage(
-//                .zl.moduleImage("zl_undo_disable")?.imageFlippedForRightToLeftLayoutDirection(),
+//                .zl.getImage("zl_undo_disable")?.imageFlippedForRightToLeftLayoutDirection(),
 //                for: .disabled
 //            )
 //        } else {
-//            btn.setImage(.zl.moduleImage("zl_undo"), for: .normal)
-//            btn.setImage(.zl.moduleImage("zl_undo_disable"), for: .disabled)
+//            btn.setImage(.zl.getImage("zl_undo"), for: .normal)
+//            btn.setImage(.zl.getImage("zl_undo_disable"), for: .disabled)
 //        }
 //        
 //        btn.adjustsImageWhenHighlighted = false
@@ -348,16 +348,16 @@ open class ZLEditImageViewController: UIViewController {
 //        let btn = ZLEnlargeButton(type: .custom)
 //        if isRTL() {
 //            btn.setImage(
-//                .zl.moduleImage("zl_redo")?.imageFlippedForRightToLeftLayoutDirection(),
+//                .zl.getImage("zl_redo")?.imageFlippedForRightToLeftLayoutDirection(),
 //                for: .normal
 //            )
 //            btn.setImage(
-//                .zl.moduleImage("zl_redo_disable")?.imageFlippedForRightToLeftLayoutDirection(),
+//                .zl.getImage("zl_redo_disable")?.imageFlippedForRightToLeftLayoutDirection(),
 //                for: .disabled
 //            )
 //        } else {
-//            btn.setImage(.zl.moduleImage("zl_redo"), for: .normal)
-//            btn.setImage(.zl.moduleImage("zl_redo_disable"), for: .disabled)
+//            btn.setImage(.zl.getImage("zl_redo"), for: .normal)
+//            btn.setImage(.zl.getImage("zl_redo_disable"), for: .disabled)
 //        }
 //        
 //        btn.adjustsImageWhenHighlighted = false
@@ -369,7 +369,7 @@ open class ZLEditImageViewController: UIViewController {
     
     @objc public lazy var eraserBtn: ZLEnlargeButton = {
         let btn = ZLEnlargeButton(type: .custom)
-        btn.setImage(.zl.moduleImage("zl_eraser"), for: .normal)
+        btn.setImage(.zl.getImage("zl_eraser"), for: .normal)
         btn.addTarget(self, action: #selector(eraserBtnClick), for: .touchUpInside)
         btn.isHidden = true
         btn.zl.setCornerRadius(18)
@@ -391,7 +391,7 @@ open class ZLEditImageViewController: UIViewController {
     }()
     
     @objc public lazy var eraserCircleView: UIImageView = {
-        let imageView = UIImageView(image: .zl.moduleImage("zl_eraser_circle"))
+        let imageView = UIImageView(image: .zl.getImage("zl_eraser_circle"))
         imageView.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
         imageView.isHidden = true
         return imageView
@@ -406,7 +406,7 @@ open class ZLEditImageViewController: UIViewController {
         return view
     }()
     
-    @objc public lazy var ashbinImgView = UIImageView(image: .zl.moduleImage("zl_ashbin"), highlightedImage: .zl.moduleImage("zl_ashbin_open"))
+    @objc public lazy var ashbinImgView = UIImageView(image: .zl.getImage("zl_ashbin"), highlightedImage: .zl.getImage("zl_ashbin_open"))
     
     @objc public var drawLineWidth: CGFloat = 6
     
@@ -1181,21 +1181,6 @@ open class ZLEditImageViewController: UIViewController {
             // hud.hide()
             block(newImage)
         }
-//        DispatchQueue.main.async { [self] in
-//            resImage = buildImage()
-//            resImage = resImage.zl.clipImage(angle: currentClipStatus.angle,
-//                                             editRect: currentClipStatus.editRect,
-//                                             isCircle: currentClipStatus.ratio?.isCircle ?? false)
-//            editModel = ZLEditImageModel(drawPaths: drawPaths,
-//                                         mosaicPaths: mosaicPaths,
-//                                         clipStatus: currentClipStatus,
-//                                         adjustStatus: currentAdjustStatus,
-//                                         selectFilter: currentFilter,
-//                                         stickers: stickerStates,
-//                                         actions: editorManager.actions)
-//            hud.hide()
-//            block(resImage)
-//        }
     }
     
     /// doneBtnClick
@@ -1232,7 +1217,7 @@ open class ZLEditImageViewController: UIViewController {
         }
         
         let hud = ZLProgressHUD.show(toast: .processing)
-        DispatchQueue.main.async { [self] in
+        DispatchQueue.execute(inQueue: .main) { [self] in
             resImage = buildImage()
             resImage = resImage.zl.clipImage(angle: currentClipStatus.angle,
                                              editRect: currentClipStatus.editRect,
@@ -1825,23 +1810,23 @@ open class ZLEditImageViewController: UIViewController {
     /// buildImage
     /// - Returns: UIImage
     private func buildImage() -> UIImage {
-        let image = UIGraphicsImageRenderer.zl.renderImage(size: editImage.size) { format in
-            format.scale = self.editImage.scale
-        } imageActions: { context in
+        // UIImage
+        let newImage: UIImage = UIGraphicsImageRenderer(size: editImage.size, format: .preferred(scale: editImage.scale)).image { context in
             editImage.draw(at: .zero)
             drawingImageView.image?.draw(in: CGRect(origin: .zero, size: originalImage.size))
-            if !stickersContainer.subviews.isEmpty {
+            if stickersContainer.subviews.isEmpty == false {
                 let scale = imageSize.width / stickersContainer.frame.width
                 stickersContainer.subviews.forEach { view in
                     (view as? ZLStickerViewAdditional)?.resetState()
                 }
-                context.concatenate(CGAffineTransform(scaleX: scale, y: scale))
-                stickersContainer.layer.render(in: context)
-                context.concatenate(CGAffineTransform(scaleX: 1 / scale, y: 1 / scale))
+                context.cgContext.concatenate(CGAffineTransform(scaleX: scale, y: scale))
+                stickersContainer.layer.render(in: context.cgContext)
+                context.cgContext.concatenate(CGAffineTransform(scaleX: 1 / scale, y: 1 / scale))
             }
         }
-        guard let cgi = image.cgImage else { return editImage }
-        return UIImage(cgImage: cgi, scale: editImage.scale, orientation: .up)
+        guard let cgImage = newImage.cgImage else { return editImage }
+        // next
+        return .init(cgImage: cgImage, scale: editImage.scale, orientation: .up)
     }
     
     /// finishClipDismissAnimate

@@ -29,7 +29,7 @@ import Foundation
 
 class ZLAddPhotoCell: UICollectionViewCell {
     private lazy var imageView: UIImageView = {
-        let view = UIImageView(image: .zl.moduleImage("zl_addPhoto"))
+        let view = UIImageView(image: .zl.getImage("zl_addPhoto"))
         view.contentMode = .scaleAspectFit
         view.clipsToBounds = true
         return view

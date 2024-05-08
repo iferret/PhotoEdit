@@ -522,14 +522,20 @@ public extension ZLPhotoBrowserWrapper where Base: UIImage {
 }
 
 extension ZLPhotoBrowserWrapper where Base: UIImage {
-    static func getImage(_ named: String) -> UIImage? {
-        if ZLCustomImageDeploy.imageNames.contains(named), let image = UIImage(named: named) {
-            return image
+    
+    /// getImage
+    /// - Parameter named: String
+    /// - Returns: UIImage
+    internal static func getImage(_ named: String) -> Optional<UIImage> {
+        if ZLCustomImageDeploy.imageNames.contains(named), let newImage = UIImage(named: named) {
+            return newImage
+        } else if let newImage = ZLCustomImageDeploy.imageForKey[named] {
+            return newImage
+        } else if let newImage: UIImage = UIImage(named: named, in: Bundle.zlPhotoBrowserBundle, compatibleWith: nil) {
+            return newImage
+        } else {
+            return .init(named: named, in: .module, compatibleWith: .none)
         }
-        if let image = ZLCustomImageDeploy.imageForKey[named] {
-            return image
-        }
-        return UIImage(named: named, in: Bundle.zlPhotoBrowserBundle, compatibleWith: nil)
     }
     
     /// moduleImage

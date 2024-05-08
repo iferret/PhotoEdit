@@ -32,13 +32,13 @@ class ZLThumbnailPhotoCell: UICollectionViewCell {
     
     private lazy var containerView = UIView()
     
-    private lazy var bottomShadowView = UIImageView(image: .zl.moduleImage("zl_shadow"))
+    private lazy var bottomShadowView = UIImageView(image: .zl.getImage("zl_shadow"))
     
-    private lazy var videoTag = UIImageView(image: .zl.moduleImage("zl_video"))
+    private lazy var videoTag = UIImageView(image: .zl.getImage("zl_video"))
     
-    private lazy var livePhotoTag = UIImageView(image: .zl.moduleImage("zl_livePhoto"))
+    private lazy var livePhotoTag = UIImageView(image: .zl.getImage("zl_livePhoto"))
     
-    private lazy var editImageTag = UIImageView(image: .zl.moduleImage("zl_editImage_tag"))
+    private lazy var editImageTag = UIImageView(image: .zl.getImage("zl_editImage_tag"))
     
     private lazy var descLabel: UILabel = {
         let label = UILabel()
@@ -69,8 +69,8 @@ class ZLThumbnailPhotoCell: UICollectionViewCell {
     
     lazy var btnSelect: ZLEnlargeButton = {
         let btn = ZLEnlargeButton(type: .custom)
-        btn.setBackgroundImage(.zl.moduleImage("zl_btn_unselected"), for: .normal)
-        btn.setBackgroundImage(.zl.moduleImage("zl_btn_selected"), for: .selected)
+        btn.setBackgroundImage(.zl.getImage("zl_btn_unselected"), for: .normal)
+        btn.setBackgroundImage(.zl.getImage("zl_btn_selected"), for: .selected)
         btn.addTarget(self, action: #selector(btnSelectClick), for: .touchUpInside)
         btn.enlargeInsets = UIEdgeInsets(top: 5, left: 10, bottom: 10, right: 5)
         return btn
