@@ -10,7 +10,7 @@ import UIKit
 extension UIBarButtonItem {
     
     /// UIBarButtonItem
-    internal static var placeholder: UIBarButtonItem {
+    internal static var disabled: UIBarButtonItem {
         let item: UIBarButtonItem = .init(title: .none, style: .plain, target: .none, action: .none)
         item.isEnabled = false
         if #available(iOS 16.0, *) {

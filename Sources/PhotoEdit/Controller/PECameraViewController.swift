@@ -83,7 +83,7 @@ class PECameraViewController: UIViewController {
     private lazy var recordBtn: UIButton = {
         let _button: UIButton = .init(type: .custom)
         _button.setBackgroundImage(.moduleImage("camera_record_normal"), for: .normal)
-        _button.setBackgroundImage(.moduleImage("camera_record_selected"), for: .highlighted)
+        _button.setBackgroundImage(.moduleImage("camera_record_selected"), for: .selected)
         _button.addTarget(self, action: #selector(buttonActionHandler(_:)), for: .touchUpInside)
         _button.isHidden = true
         return _button
@@ -105,6 +105,15 @@ class PECameraViewController: UIViewController {
         _button.setBackgroundImage(.moduleImage("camera_reverse"), for: .normal)
         _button.addTarget(self, action: #selector(buttonActionHandler(_:)), for: .touchUpInside)
         return _button
+    }()
+    
+    /// 时间
+    private lazy var timeLabel: UILabel = {
+        let _label: UILabel = .init(frame: .zero)
+        _label.textColor = .hex("#FFFFFF")
+        _label.font = .systemFont(ofSize: 17.0, weight: .medium)
+        _label.textAlignment = .center
+        return _label
     }()
     
     /// AVCaptureSession
@@ -143,17 +152,17 @@ class PECameraViewController: UIViewController {
             return .off
         }
     }
-    
-    /// AVCaptureVideoOrientation
-    private var videoOrientation: AVCaptureVideoOrientation = .portrait
-    /// Optional<CMMotionManager>
-    private var motionManager: Optional<CMMotionManager> = .none
-    
+
     /// Optional<Timer>
     private var timer: Optional<Timer> = .none
     
     /// Bool
     private var isReady: Bool = false
+    
+    /// Array<UIView>
+    private var videoHiddens: Array<UIView> {
+        return [presetView, cancelBtn, reverseBtn]
+    }
     
     // MARK: 生命周期
     
@@ -203,36 +212,12 @@ class PECameraViewController: UIViewController {
     /// - Parameter animated: Bool
     internal override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // next
-        motionManager = .init()
-        motionManager?.deviceMotionUpdateInterval = 0.5
-        if motionManager?.isDeviceMotionAvailable == true {
-            motionManager?.startDeviceMotionUpdates(to: .main, withHandler: {[weak self] motion, _ in
-                guard let this = self, let motion = motion else { return }
-                let x = motion.gravity.x
-                let y = motion.gravity.y
-                if abs(y) >= abs(x) || abs(x) < 0.45 {
-                    this.videoOrientation = y >= 0.45 ? .portraitUpsideDown : .portrait
-                } else {
-                    this.videoOrientation = x >= 0.0 ? .landscapeLeft : .landscapeRight
-                }
-            })
-        }
         // start running
         if isReady == true {
             session.hub.startRunning()
         }
     }
-    
-    /// viewDidAppear
-    /// - Parameter animated: Bool
-    internal override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        // next
-        motionManager?.stopDeviceMotionUpdates()
-        motionManager = .none
-    }
-    
+   
     deinit {
         timer?.invalidate()
         timer = .none
@@ -246,6 +231,7 @@ extension PECameraViewController {
     private func initialize() {
         // coding here ...
         navigationItem.leftBarButtonItem = flashItem
+        navigationItem.titleView = timeLabel
         view.backgroundColor = .hex("#000000")
         // 布局
         view.addSubview(previewView)
@@ -363,28 +349,95 @@ extension PECameraViewController {
             UIView.transition(with: previewView, duration: 0.25, options: [.transitionFlipFromLeft], animations: .none)
             
         case takeBtn: // 拍照
-            guard let input: AVCaptureDeviceInput = videoInput,
-                  let ouput: AVCapturePhotoOutput = photoOutput
-            else { return }
+            guard let input: AVCaptureDeviceInput = videoInput, let output: AVCapturePhotoOutput = photoOutput else { return }
             // 屏蔽用户交互
             (navigationController ?? self).view.isUserInteractionEnabled = false
             // AVCaptureConnection
-            if let connection: AVCaptureConnection = ouput.connection(with: .video) {
+            if let connection: AVCaptureConnection = output.connection(with: .video) {
                 // 修复镜像问题
                 if input.device.position == .front, connection.isVideoMirroringSupported == true {
                     connection.isVideoMirrored = true
                 }
                 // 设置方向
-                connection.videoOrientation = videoOrientation
+                if #available(iOS 17.0, *) {
+                    connection.videoRotationAngle = previewView.videoRotationAngle
+                } else {
+                    connection.videoOrientation = previewView.videoOrientation
+                }
             }
             // AVCapturePhotoSettings
             let settings: AVCapturePhotoSettings = .init(format: [AVVideoCodecKey: AVVideoCodecType.jpeg])
+            // 设置闪光灯
             settings.flashMode = input.device.hasFlash == true ? flashMode : .off
             // capturePhoto
-            ouput.capturePhoto(with: settings, delegate: self)
+            session.hub.startRunning(callbackQueue: .main) {[weak self, weak output] in
+                guard let this = self, let output = output else { return }
+                // capturePhoto
+                output.capturePhoto(with: settings, delegate: this)
+            }
             
-        case recordBtn: // 记录视频
-            break
+        case recordBtn where recordBtn.isSelected == false: // 记录视频
+            guard let input: AVCaptureDeviceInput = videoInput, let output: AVCaptureMovieFileOutput = videoOutput else { return }
+            // next
+            if let connection: AVCaptureConnection = output.connection(with: .video) {
+                connection.videoScaleAndCropFactor = 1.0
+                // 设置方向
+                if #available(iOS 17.0, *) {
+                    connection.videoRotationAngle = previewView.videoRotationAngle
+                } else {
+                    connection.videoOrientation = previewView.videoOrientation
+                }
+                // 解决不同系统版本,因为录制视频编码导致安卓端无法播放的问题
+                if output.availableVideoCodecTypes.contains(.h264) == true {
+                    output.setOutputSettings([AVVideoCodecKey: AVVideoCodecType.h264], for: connection)
+                }
+                // 解决前置摄像头录制视频时候左右颠倒的问题
+                if input.device.position == .front, connection.isVideoMirroringSupported == true {
+                    connection.isVideoMirrored = true
+                }
+            }
+            // 设置照明
+            do {
+                if input.device.hasTorch == true {
+                    try input.device.lockForConfiguration()
+                    input.device.torchMode = torchMode
+                    input.device.unlockForConfiguration()
+                }
+            } catch {
+                xprint("设置照明", error)
+            }
+            // 开始记录视频
+            // next
+            UIView.animate(withDuration: 0.25) {
+                self.recordBtn.isSelected.toggle()
+                self.videoHiddens.forEach { $0.alpha = 0.0 }
+                self.zoomFactorView.transform = .init(translationX: 0.0, y: 40.0)
+            } completion: {[weak output, weak self] _ in
+                guard let this = self, let output = output else { return }
+                let uuid: String = UUID().hub.simpleID
+                let fileExt: String = "mov"
+                let fileURL: URL = FileManager.default.hub.temporaryURL(for: uuid, fileExt: fileExt)
+                this.session.hub.startRunning(callbackQueue: .main) {[weak this, weak output] in
+                    guard let this = this, let output = output, output.isRecording == false else { return }
+                    // startRecording
+                    output.startRecording(to: fileURL, recordingDelegate: this)
+                }
+            }
+            
+        case recordBtn where recordBtn.isSelected == true: // 停止记录
+            guard let output: AVCaptureMovieFileOutput = videoOutput else { return }
+            // next
+            UIView.animate(withDuration: 0.25) {
+                self.recordBtn.isSelected.toggle()
+                self.videoHiddens.forEach { $0.alpha = 1.0 }
+                self.zoomFactorView.transform = .identity
+            } completion: {[weak output] _ in
+                guard let output = output else { return }
+                if output.isRecording == true {
+                    // stopRecording
+                    output.stopRecording()
+                }
+            }
             
         default: break
         }
@@ -613,6 +666,7 @@ extension PECameraViewController: PEPresetViewDelegate {
     internal func presetView(_ presetView: PEPresetView, selectedActionHandler sender: PEPresetItem) {
         switch sender {
         case .video where session.sessionPreset == .photo && session.canSetSessionPreset(.hd1920x1080) == true:
+            (navigationController ?? self).view.isUserInteractionEnabled = false
             DispatchQueue.global().async {[weak self] in
                 guard let this = self else { return }
                 try? this.configureWith(mediaType: .video, position: this.postion)
@@ -624,10 +678,12 @@ extension PECameraViewController: PEPresetViewDelegate {
                     this.recordBtn.isHidden = false
                     this.takeBtn.isHidden = true
                     this.view.layoutIfNeeded()
+                    (this.navigationController ?? this).view.isUserInteractionEnabled = true
                 }
             }
             
         case .photo where session.sessionPreset == .hd1920x1080:
+            (navigationController ?? self).view.isUserInteractionEnabled = false
             DispatchQueue.global().async {[weak self] in
                 guard let this = self else { return }
                 try? this.configureWith(mediaType: .photo, position: this.postion)
@@ -639,6 +695,7 @@ extension PECameraViewController: PEPresetViewDelegate {
                     this.recordBtn.isHidden = true
                     this.takeBtn.isHidden = false
                     this.view.layoutIfNeeded()
+                    (this.navigationController ?? this).view.isUserInteractionEnabled = true
                 }
             }
             
@@ -750,6 +807,77 @@ extension PECameraViewController: AVCapturePhotoCaptureDelegate {
                 self.previewView.unhood()
             }
             self.present(controller, animated: true, completion: .none)
+        }
+    }
+}
+
+// MARK: - AVCaptureFileOutputRecordingDelegate
+extension PECameraViewController: AVCaptureFileOutputRecordingDelegate {
+    
+    /// didStartRecordingTo
+    /// - Parameters:
+    ///   - output: AVCaptureFileOutput
+    ///   - fileURL: URL
+    ///   - connections: [AVCaptureConnection]
+    internal func fileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
+        DispatchQueue.execute(inQueue: .main) {[weak self] in
+            self?.handleFileOutput(output, didStartRecordingTo: fileURL, from: connections)
+        }
+    }
+    
+    /// didFinishRecordingTo
+    /// - Parameters:
+    ///   - output: AVCaptureFileOutput
+    ///   - outputFileURL: URL
+    ///   - connections: [AVCaptureConnection]
+    ///   - error: Error
+    internal func fileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: (any Error)?) {
+        DispatchQueue.execute(inQueue: .main) {[weak self] in
+            self?.handleFileOutput(output, didFinishRecordingTo: outputFileURL, from: connections, error: error)
+        }
+    }
+    
+    /// didStartRecordingTo
+    /// - Parameters:
+    ///   - output: AVCaptureFileOutput
+    ///   - fileURL: URL
+    ///   - connections: [AVCaptureConnection]
+    private func handleFileOutput(_ output: AVCaptureFileOutput, didStartRecordingTo fileURL: URL, from connections: [AVCaptureConnection]) {
+        xprint(#function)
+        timer?.invalidate()
+        timer = .scheduledTimer(withTimeInterval: 0.5, repeats: true, block: {[weak self, weak output] _ in
+            guard let this = self, let output else { return }
+            this.timeLabel.text = output.recordedDuration.hub.readable
+            this.timeLabel.sizeToFit()
+            this.timeLabel.isHidden = false
+        })
+    }
+    
+    /// didFinishRecordingTo
+    /// - Parameters:
+    ///   - output: AVCaptureFileOutput
+    ///   - outputFileURL: URL
+    ///   - connections: [AVCaptureConnection]
+    ///   - error: Error
+    private func handleFileOutput(_ output: AVCaptureFileOutput, didFinishRecordingTo outputFileURL: URL, from connections: [AVCaptureConnection], error: (any Error)?) {
+        xprint(#function)
+        timer?.invalidate()
+        timer = .none
+        if let error = error {
+            let controller: UIAlertController = .init(title: "操作提醒", message: error.localizedDescription, preferredStyle: .alert)
+            controller.hub.addAction(title: "关闭")
+            self.present(controller, animated: true, completion: .none)
+            session.hub.startRunning()
+            timeLabel.isHidden = true
+            timeLabel.text = .none
+        } else {
+            // next
+            let controller: PEVideoViewController = .init(fileURL: outputFileURL)
+            navigationController?.pushViewController(controller, animated: true)
+            // next
+            session.hub.stopRunning()
+            timeLabel.isHidden = true
+            timeLabel.text = .none
         }
     }
 }

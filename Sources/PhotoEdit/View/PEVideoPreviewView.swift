@@ -8,6 +8,7 @@
 import UIKit
 import AVFoundation
 import SnapKit
+import CoreMotion
 
 /// PEVideoPreviewViewDelegate
 protocol PEVideoPreviewViewDelegate: AnyObject {
@@ -45,9 +46,10 @@ class PEVideoPreviewView: UIView {
     
     /// Optional<PEVideoPreviewViewDelegate>
     internal weak var delegate: Optional<PEVideoPreviewViewDelegate> = .none
-    
-    /// Bool
-    private var isAdjustingFocusPoint: Bool = false
+    /// AVCaptureVideoOrientation
+    internal private(set) var videoOrientation: AVCaptureVideoOrientation = .portrait
+    /// CGFloat
+    internal private(set) var videoRotationAngle: CGFloat = 0.0
     
     // MARK: 私有属性
     
@@ -58,6 +60,16 @@ class PEVideoPreviewView: UIView {
         _tap.numberOfTouchesRequired = 1
         return _tap
     }()
+    
+    /// Bool
+    private var isAdjustingFocusPoint: Bool = false
+    
+    /// Optional<CMMotionManager>
+    private var motionManger: Optional<CMMotionManager> = .none
+    /// Optional<AVCaptureDevice.RotationCoordinator>
+    private var coordinator: Optional<NSObject> = .none
+    /// Optional<NSKeyValueObservation>
+    private var observation: Optional<NSKeyValueObservation> = .none
     
     // MARK: 生命周期
     
@@ -74,6 +86,51 @@ class PEVideoPreviewView: UIView {
     /// - Parameter coder: NSCoder
     internal required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    /// willMove toWindow
+    /// - Parameter newWindow: UIWindow
+    internal override func willMove(toWindow newWindow: UIWindow?) {
+        super.willMove(toWindow: newWindow)
+        if newWindow == .none {
+            if #available(iOS 17.0, *) {
+                coordinator = .none
+                observation?.invalidate()
+                observation = .none
+            } else {
+                motionManger?.stopDeviceMotionUpdates()
+                motionManger = .none
+            }
+        } else {
+            if #available(iOS 17.0, *) {
+                guard let inputs: Array<AVCaptureDeviceInput> = session?.hub.inputs(),
+                      let first = inputs.first(where: { $0.device.hasMediaType(.video) == true })
+                else { return }
+                let coordinator: AVCaptureDevice.RotationCoordinator = .init(device: first.device, previewLayer: previewLayer)
+                self.coordinator = coordinator
+                videoRotationAngle = coordinator.videoRotationAngleForHorizonLevelPreview
+                observation = coordinator.observe(\.videoRotationAngleForHorizonLevelPreview, options: .new) {[weak self] _, change in
+                    guard let this = self, let newValue: CGFloat = change.newValue else { return }
+                    this.videoRotationAngle = newValue
+                    xprint("videoRotationAngle =>", newValue)
+                }
+            } else {
+                motionManger = .init()
+                motionManger?.deviceMotionUpdateInterval = 0.5
+                if motionManger?.isDeviceMotionAvailable == true {
+                    motionManger?.startDeviceMotionUpdates(to: .main) {[weak self] motion, _ in
+                        guard let this = self, let motion = motion else { return }
+                        let x = motion.gravity.x
+                        let y = motion.gravity.y
+                        if abs(y) >= abs(x) || abs(x) < 0.45 {
+                            this.videoOrientation = y >= 0.45 ? .portraitUpsideDown : .portrait
+                        } else {
+                            this.videoOrientation = x >= 0.0 ? .landscapeLeft : .landscapeRight
+                        }
+                    }
+                }
+            }
+        }
     }
     
 }

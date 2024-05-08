@@ -95,4 +95,15 @@ extension CompatibleWrapper where Base: AVCaptureSession {
         return base.outputs.contains(output)
     }
     
+    /// inputs
+    /// - Returns: Array<T>
+    internal func inputs<T>() -> Array<T> where T: AVCaptureInput {
+        return base.inputs.compactMap { $0 as? T }
+    }
+    
+    /// outputs
+    /// - Returns: Array<T>
+    internal func outputs<T>() -> Array<T> where T: AVCaptureOutput {
+        return base.outputs.compactMap {$0 as? T }
+    }
 }
