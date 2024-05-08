@@ -34,7 +34,7 @@ let package = Package(
         .target(name: "PhotoEdit",
                 dependencies: ["ZLPhotoBrowser", "SnapKit", "Hero"],
                 path: "Sources/PhotoEdit", resources: [
-//                    .process("PhotoEdit.xcassets")
+                    .process("PhotoEdit.xcassets")
                 ]),
     ]
 )

@@ -75,6 +75,18 @@ public class ZLEditImageModel: NSObject {
         self.actions = actions
         super.init()
     }
+    
+    /// `default`
+    /// - Parameter editRect: CGRect
+    /// - Returns: ZLEditImageModel
+    public static func `default`(editRect: CGRect) -> ZLEditImageModel {
+        return .init(drawPaths: [],
+                     mosaicPaths: [],
+                     clipStatus: .init(editRect: editRect),
+                     adjustStatus: .init(),
+                     selectFilter: .normal,
+                     stickers: [], actions: [])
+    }
 }
 
 open class ZLEditImageViewController: UIViewController {

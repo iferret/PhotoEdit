@@ -67,10 +67,13 @@ extension PhotoEditViewController {
     /// - Parameter handler: ResultType
     public func completionHandler(_ handler: Optional<(_ result: ResultType) -> Void>) {
         // 关联相机
-        let cameras: Array<PECameraViewController> = self.hub.viewControllers()
-        cameras.forEach { $0.completionHandler(handler) }
+        if let first = viewControllers.first as? PECameraViewController {
+            first.completionHandler(handler)
+        }
         // 关联图片编辑
-        
+        if let first = viewControllers.first as? PEImageEditViewController {
+            first.completionHandler(handler)
+        }
     }
     
 }

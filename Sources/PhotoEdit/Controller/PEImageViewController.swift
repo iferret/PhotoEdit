@@ -117,7 +117,17 @@ extension PEImageViewController {
         case redoItem:
             navigationController?.popViewController(animated: true)
         case editItem:
-            break
+            let controller: PEImageEditViewController = .init(uiImage: uiImage)
+            controller.completionHandler {[weak self] result in
+                guard let this = self else { return }
+                switch result {
+                case .photo(let uiImage):
+                    this.uiImage = uiImage
+                    this.imgView.image = uiImage
+                default: break
+                }
+            }
+            navigationController?.pushViewController(controller, animated: true)
         case useItem:
             // dismiss
             navigationController?.dismiss(animated: true, completion: .none)
