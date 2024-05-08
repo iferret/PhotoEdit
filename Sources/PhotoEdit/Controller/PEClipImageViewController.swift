@@ -91,10 +91,9 @@ class PEClipImageViewController: ZLClipImageViewController {
     /// 构建
     /// - Parameters:
     ///   - image: UIImage
-    ///   - status: ZLClipStatus
-    internal override init(image: UIImage, status: ZLClipStatus) {
+    internal init(image: UIImage) {
         self.origiImage = image
-        super.init(image: image, status: status)
+        super.init(image: image, status: .default(editRect: .init(origin: .zero, size: image.size)))
     }
     
     /// viewDidLoad

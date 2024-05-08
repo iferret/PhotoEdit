@@ -218,8 +218,7 @@ extension PEEditImageViewController {
             // self.doneItem.isEnabled = false
             
         case clipItem: // 裁剪
-            let editRect: CGRect = .init(x: 0.0, y: 0.0, width: editImage.size.width, height: editImage.size.height)
-            let controller: PEClipImageViewController = .init(image: editImage, status: .default(editRect: editRect))
+            let controller: PEClipImageViewController = .init(image: editImage)
             controller.completionHandler {[weak self] newImage in
                 guard let this = self else { return }
                 this.editImage = newImage
