@@ -95,6 +95,13 @@ class PEImageViewController: UIViewController {
         initialize()
     }
     
+    /// viewWillAppear
+    /// - Parameter animated: Bool
+    internal override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        navigationController?.isNavigationBarHidden = false
+    }
+    
 }
 
 extension PEImageViewController {

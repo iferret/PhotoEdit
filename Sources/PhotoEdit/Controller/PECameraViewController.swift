@@ -216,6 +216,7 @@ class PECameraViewController: UIViewController {
     /// - Parameter animated: Bool
     internal override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        navigationController?.isNavigationBarHidden = false
         // start running
         if isReady == true {
             session.hub.startRunning()
