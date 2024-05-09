@@ -55,7 +55,7 @@ class PECameraViewController: UIViewController {
     /// PEZoomFactorView
     private lazy var zoomFactorView: PEZoomFactorView = {
         let _factorView: PEZoomFactorView = .init(frame: .zero)
-        _factorView.backgroundColor = .hex("#000000", alpha: 0.1)
+        _factorView.backgroundColor = .hex("#000000", alpha: 0.2)
         _factorView.cornerRadius = 22.0
         _factorView.masksToBounds = true
         _factorView.delegate = self
@@ -265,10 +265,10 @@ extension PECameraViewController {
         view.addSubview(presetView)
         presetView.snp.makeConstraints {
             $0.left.right.equalToSuperview()
-            $0.top.equalTo(lineView.snp.bottom).offset(10.0)
+            $0.top.equalTo(lineView.snp.bottom).offset(4.0)
             $0.height.equalTo(36.0)
         }
-        
+  
         view.addSubview(takeBtn)
         takeBtn.snp.makeConstraints {
             $0.centerX.equalToSuperview()
@@ -299,7 +299,7 @@ extension PECameraViewController {
             $0.centerX.equalToSuperview()
             $0.width.equalTo(122.0)
             $0.height.equalTo(44.0)
-            $0.bottom.equalTo(lineView.snp.top).offset(-16.0)
+            $0.bottom.equalTo(lineView.snp.top).offset(-10.0)
         }
     }
     
@@ -426,7 +426,7 @@ extension PECameraViewController {
             UIView.animate(withDuration: 0.25) {
                 self.recordBtn.isSelected.toggle()
                 self.videoHiddens.forEach { $0.alpha = 0.0 }
-                self.zoomFactorView.transform = .init(translationX: 0.0, y: 40.0)
+                self.zoomFactorView.transform = .init(translationX: 0.0, y: 34.0)
             } completion: {[weak output, weak self] _ in
                 guard let this = self, let output = output else { return }
                 let uuid: String = UUID().hub.simpleID
