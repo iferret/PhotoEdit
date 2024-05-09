@@ -23,6 +23,13 @@ class PEImageViewController: UIViewController {
         return _imgView
     }()
     
+    /// 关闭按钮
+    private lazy var closeItem: UIBarButtonItem = {
+        let _img: Optional<UIImage> = .moduleImage("camera_close")?.withRenderingMode(.alwaysOriginal)
+        let _item: UIBarButtonItem = .init(image: _img, style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+        return _item
+    }()
+    
     /// 重拍
     private lazy var redoItem: UIBarButtonItem = {
         let _item: UIBarButtonItem = .init(title: "重拍      ", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
@@ -113,7 +120,7 @@ extension PEImageViewController {
     private func initialize() {
         // coding here ...
         view.backgroundColor = .hex("#000000")
-        navigationItem.leftBarButtonItem = .disabled
+        navigationItem.leftBarButtonItem = closeItem
         
         // 布局
         view.addSubview(imgView)
@@ -140,6 +147,9 @@ extension PEImageViewController {
     /// - Parameter item: UIBarButtonItem
     @objc private func itemActionHandler(_ item: UIBarButtonItem) {
         switch item {
+        case closeItem: // 关闭
+            navigationController?.dismiss(animated: true, completion: .none)
+            
         case redoItem:
             navigationController?.popViewController(animated: true)
         case editItem:

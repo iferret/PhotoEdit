@@ -15,6 +15,13 @@ class PEVideoViewController: UIViewController {
     typealias ResultType = PhotoEditViewController.ResultType
     
     // MARK: 私有属性
+    
+    /// 关闭按钮
+    private lazy var closeItem: UIBarButtonItem = {
+        let _img: Optional<UIImage> = .moduleImage("camera_close")?.withRenderingMode(.alwaysOriginal)
+        let _item: UIBarButtonItem = .init(image: _img, style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+        return _item
+    }()
 
     /// 重拍
     private lazy var redoItem: UIBarButtonItem = {
@@ -133,7 +140,7 @@ extension PEVideoViewController {
     private func initialize() {
         // coding here ...
         view.backgroundColor = .hex("#000000")
-        navigationItem.leftBarButtonItem = .disabled
+        navigationItem.leftBarButtonItem = closeItem
         addChild(controller)
         // 布局
         view.addSubview(bottomView)
@@ -159,6 +166,9 @@ extension PEVideoViewController {
     /// - Parameter sender: UIBarButtonItem
     @objc private func itemActionHandler(_ sender: UIBarButtonItem) {
         switch sender {
+        case closeItem: // 关闭
+            navigationController?.dismiss(animated: true, completion: .none)
+            
         case redoItem:
             navigationController?.popViewController(animated: true)
             controller.player?.pause()

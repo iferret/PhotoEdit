@@ -29,8 +29,8 @@ public class PhotoEditViewController: UINavigationController {
         switch sourceType {
         case .camera:
             controller = PECameraViewController()
-        case .photo(let _):
-            controller = .init()
+        case .photo(let uiImage):
+            controller = PEEditImageViewController(uiImage: uiImage)
         }
         super.init(rootViewController: controller)
         self.overrideUserInterfaceStyle = .dark

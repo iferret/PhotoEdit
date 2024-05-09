@@ -211,10 +211,20 @@ extension PEEditImageViewController {
     @objc private func itemActionHandler(_ sender: UIBarButtonItem) {
         switch sender {
         case cancelItem:
-            navigationController?.popViewController(animated: true)
+            guard let navi = navigationController else { return }
+            if navi.viewControllers.count > 1 {
+                navigationController?.popViewController(animated: true)
+            } else {
+                navigationController?.dismiss(animated: true, completion: .none)
+            }
         case doneItem:
+            guard let navi = navigationController else { return }
             completionHandler?(.photo(editImage))
-            navigationController?.popViewController(animated: true)
+            if navi.viewControllers.count > 1 {
+                navigationController?.popViewController(animated: true)
+            } else {
+                navigationController?.dismiss(animated: true, completion: .none)
+            }
         case undoItem:
             self.editImage = originImage
             self.imgView.image = originImage
