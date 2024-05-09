@@ -13,6 +13,11 @@ import Hero
 class PEImageViewController: UIViewController {
     typealias ResultType = PhotoEditViewController.ResultType
     
+    // MARK: 公开属性
+    
+    /// Bool
+    internal var closeWhenFinished: Bool = true
+    
     // MARK: 私有属性
     
     /// UIImageView
@@ -166,7 +171,9 @@ extension PEImageViewController {
             navigationController?.pushViewController(controller, animated: true)
         case useItem:
             // dismiss
-            navigationController?.dismiss(animated: true, completion: .none)
+            if closeWhenFinished == true {
+                navigationController?.dismiss(animated: true, completion: .none)
+            }
             // next
             completionHandler?(.photo(uiImage))
         default: break

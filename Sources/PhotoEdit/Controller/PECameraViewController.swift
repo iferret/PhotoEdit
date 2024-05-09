@@ -15,6 +15,12 @@ import Hero
 class PECameraViewController: UIViewController {
     // next
     typealias ResultType = PhotoEditViewController.ResultType
+    
+    // MARK: 公开属性
+    
+    /// Bool
+    internal var closeWhenFinished: Bool = true
+    
     // MARK: 私有属性
     
     /// 闪光灯
@@ -858,6 +864,7 @@ extension PECameraViewController: AVCapturePhotoCaptureDelegate {
             session.hub.stopRunning()
             // 进入预览页
             let controller: PEImageViewController = .init(uiImage: newImage)
+            controller.closeWhenFinished = closeWhenFinished
             controller.completionHandler(completionHandler)
             navigationController?.pushViewController(controller, animated: true)
             self.previewView.unhood()
@@ -937,6 +944,7 @@ extension PECameraViewController: AVCaptureFileOutputRecordingDelegate {
         } else {
             // next
             let controller: PEVideoViewController = .init(fileURL: outputFileURL)
+            controller.closeWhenFinished = closeWhenFinished
             controller.completionHandler(completionHandler)
             navigationController?.pushViewController(controller, animated: true)
             // next

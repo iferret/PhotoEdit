@@ -14,6 +14,11 @@ import SnapKit
 class PEVideoViewController: UIViewController {
     typealias ResultType = PhotoEditViewController.ResultType
     
+    // MARK: 公开属性
+    
+    /// Bool
+    internal var closeWhenFinished: Bool = true
+    
     // MARK: 私有属性
     
     /// 关闭按钮
@@ -178,7 +183,9 @@ extension PEVideoViewController {
             
         case useItem:
             // dismiss
-            navigationController?.dismiss(animated: true, completion: .none)
+            if closeWhenFinished == true {
+                navigationController?.dismiss(animated: true, completion: .none)
+            }
             // next
             completionHandler?(.video(fileURL))
         default: break
