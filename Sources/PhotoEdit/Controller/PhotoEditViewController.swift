@@ -18,6 +18,8 @@ public class PhotoEditViewController: UINavigationController {
     public override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation { .portrait }
     /// SourceType
     internal let sourceType: SourceType
+    /// 保存到相册
+    internal var saveToAlbum: Bool = true
     
     // MARK: 生命周期
     
@@ -74,11 +76,38 @@ extension PhotoEditViewController {
     public func completionHandler(_ handler: Optional<(_ result: ResultType) -> Void>) {
         // 关联相机
         if let first = viewControllers.first as? PECameraViewController {
-            first.completionHandler(handler)
+            first.completionHandler {[weak self] result in
+                guard let this = self else { return }
+                // 保存到相册
+                if this.saveToAlbum == true {
+                    this.saveToAlbumWith(result)
+                }
+                // next
+                handler?(result)
+            }
         }
         // 关联图片编辑
         if let first = viewControllers.first as? PEEditImageViewController {
-            first.completionHandler(handler)
+            first.completionHandler {[weak self] result in
+                guard let this = self else { return }
+                // 保存到相册
+                if this.saveToAlbum == true {
+                    this.saveToAlbumWith(result)
+                }
+                // next
+                handler?(result)
+            }
+        }
+    }
+    
+    /// saveToAlbumWith
+    /// - Parameter result: ResultType
+    private func saveToAlbumWith(_ result: ResultType) {
+        switch result {
+        case .photo(let uiImage):
+            UIImageWriteToSavedPhotosAlbum(uiImage, .none, .none, .none)
+        case .video(let fileURL):
+            UISaveVideoAtPathToSavedPhotosAlbum(fileURL.path, .none, .none, .none)
         }
     }
     
