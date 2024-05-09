@@ -17,9 +17,9 @@ public class PhotoEditViewController: UINavigationController {
     /// UIInterfaceOrientation
     public override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation { .portrait }
     /// SourceType
-    internal let sourceType: SourceType
+    public let sourceType: SourceType
     /// 保存到相册
-    internal var saveToAlbum: Bool = true
+    public var saveToAlbum: Bool = true
     
     // MARK: 生命周期
     
