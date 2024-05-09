@@ -56,8 +56,8 @@ class PEVideoPreviewView: UIView {
     /// UITapGestureRecognizer
     private lazy var tapGesture: UITapGestureRecognizer = {
         let _tap: UITapGestureRecognizer = .init(target: self, action: #selector(tapActionHandler(_:)))
-        _tap.numberOfTapsRequired = 1
-        _tap.numberOfTouchesRequired = 1
+//        _tap.numberOfTapsRequired = 1
+//        _tap.numberOfTouchesRequired = 1
         return _tap
     }()
     

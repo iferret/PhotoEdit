@@ -25,7 +25,6 @@
 //  THE SOFTWARE.
 
 import UIKit
-import SnapKit
 
 public struct ZLClipStatus {
     var angle: CGFloat = 0

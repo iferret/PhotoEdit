@@ -25,7 +25,7 @@ class PEImageViewController: UIViewController {
     
     /// 重拍
     private lazy var redoItem: UIBarButtonItem = {
-        let _item: UIBarButtonItem = .init(title: "重拍", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+        let _item: UIBarButtonItem = .init(title: "重拍      ", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
         return _item
@@ -118,7 +118,8 @@ extension PEImageViewController {
         // 布局
         view.addSubview(imgView)
         imgView.snp.makeConstraints {
-            $0.left.right.top.equalTo(view.safeAreaLayoutGuide)
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(50.0)
+            $0.left.right.equalTo(view.safeAreaLayoutGuide)
             $0.height.equalTo(view.safeAreaLayoutGuide.snp.width).multipliedBy(uiImage.size.height / uiImage.size.width)
         }
         

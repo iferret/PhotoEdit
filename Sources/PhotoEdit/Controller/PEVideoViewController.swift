@@ -56,7 +56,7 @@ class PEVideoViewController: UIViewController {
     private lazy var controller: AVPlayerViewController = {
         let _controller: AVPlayerViewController = .init()
         _controller.player = .init(url: fileURL)
-        _controller.videoGravity = .resizeAspectFill
+        _controller.videoGravity = .resizeAspect
         _controller.view.hero.id = "preview_layer"
         _controller.delegate = self
         if #available(iOS 16.0, *) {
