@@ -129,6 +129,10 @@ class PEClipImageViewController: ZLClipImageViewController {
         undoItem.isEnabled = true
         doneItem.isEnabled = true
     }
+    
+    deinit {
+        xprint(#function, #file.hub.lastPathComponent)
+    }
 }
 
 extension PEClipImageViewController {

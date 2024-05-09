@@ -28,10 +28,10 @@ class PECameraViewController: UIViewController {
     
     /// 照明
     private lazy var torchItem: UIBarButtonItem = {
-        let _img: Optional<UIImage> = .moduleImage("camera_flash_auto")?.withRenderingMode(.alwaysTemplate)
+        let _img: Optional<UIImage> = .moduleImage("camera_flash_off")?.withRenderingMode(.alwaysTemplate)
         let _item: UIBarButtonItem = .init(image: _img, style: .plain, target: self, action: #selector(itemActionHandler(_:)))
-        _item.tag = AVCaptureDevice.TorchMode.auto.rawValue
-        _item.tintColor = .hex("#FFE27E")
+        _item.tag = AVCaptureDevice.TorchMode.off.rawValue
+        _item.tintColor = .hex("#FFFFFF")
         return _item
     }()
     
@@ -458,6 +458,44 @@ extension PECameraViewController {
     }
     
     /// reloadWith
+    /// - Parameter flashMode: AVCaptureDevice.FlashMode
+    private func reloadWith(flashMode: AVCaptureDevice.FlashMode) {
+        switch (flashItem.isEnabled == true, flashMode) {
+        case (true, .auto):
+            flashItem.image = .moduleImage("camera_flash_auto")?.withRenderingMode(.alwaysTemplate)
+            flashItem.tintColor = .hex("#FFE27E")
+        case (true, .on):
+            flashItem.image = .moduleImage("camera_flash_on")?.withRenderingMode(.alwaysTemplate)
+            flashItem.tintColor = .hex("#FFE27E")
+        case (true, .off):
+            flashItem.image = .moduleImage("camera_flash_off")?.withRenderingMode(.alwaysTemplate)
+            flashItem.tintColor = .hex("#FFFFFF")
+        case (false, _):
+            flashItem.image = .moduleImage("camera_flash_off")?.withRenderingMode(.alwaysTemplate)
+            flashItem.tintColor = .hex("#FFFFFF")
+        }
+    }
+    
+    /// reloadWith
+    /// - Parameter torchMode: AVCaptureDevice.TorchMode
+    private func reloadWith(torchMode: AVCaptureDevice.TorchMode) {
+        switch (torchItem.isEnabled == true, torchMode) {
+        case (true, .auto):
+            torchItem.image = .moduleImage("camera_flash_auto")?.withRenderingMode(.alwaysTemplate)
+            torchItem.tintColor = .hex("#FFE27E")
+        case (true, .on):
+            torchItem.image = .moduleImage("camera_flash_on")?.withRenderingMode(.alwaysTemplate)
+            torchItem.tintColor = .hex("#FFE27E")
+        case (true, .off):
+            torchItem.image = .moduleImage("camera_flash_off")?.withRenderingMode(.alwaysTemplate)
+            torchItem.tintColor = .hex("#FFFFFF")
+        case (false, _):
+            torchItem.image = .moduleImage("camera_flash_off")?.withRenderingMode(.alwaysTemplate)
+            torchItem.tintColor = .hex("#FFFFFF")
+        }
+    }
+    
+    /// reloadWith
     /// - Parameter flashMode: Optional<AVCaptureDeviceInput>
     private func reloadWith(_ videoInput: Optional<AVCaptureDeviceInput>) {
         guard let videoInput = videoInput else { return }
@@ -688,6 +726,7 @@ extension PECameraViewController: PEPresetViewDelegate {
                     guard let this = this else { return }
                     this.mediaType = .video
                     this.reloadWith(this.videoInput)
+                    this.reloadWith(torchMode: .off)
                     this.previewView.snp.updateConstraints { $0.height.equalTo(this.view.bounds.width * (16.0 / 9.0)) }
                     this.recordBtn.isHidden = false
                     this.takeBtn.isHidden = true
@@ -705,6 +744,7 @@ extension PECameraViewController: PEPresetViewDelegate {
                     guard let this = this else { return }
                     this.mediaType = .photo
                     this.reloadWith(this.videoInput)
+                    this.reloadWith(flashMode: .auto)
                     this.previewView.snp.updateConstraints { $0.height.equalTo(this.view.bounds.width * (4.0 / 3.0)) }
                     this.recordBtn.isHidden = true
                     this.takeBtn.isHidden = false
@@ -885,6 +925,8 @@ extension PECameraViewController: AVCaptureFileOutputRecordingDelegate {
             session.hub.startRunning()
             timeLabel.isHidden = true
             timeLabel.text = .none
+            // clearup
+            try? FileManager.default.removeItem(at: outputFileURL)
         } else {
             // next
             let controller: PEVideoViewController = .init(fileURL: outputFileURL)

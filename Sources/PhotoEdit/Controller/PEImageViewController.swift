@@ -102,6 +102,9 @@ class PEImageViewController: UIViewController {
         navigationController?.isNavigationBarHidden = false
     }
     
+    deinit {
+        xprint(#function, #file.hub.lastPathComponent)
+    }
 }
 
 extension PEImageViewController {

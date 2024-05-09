@@ -161,6 +161,10 @@ class PEDrawImageViewController: ZLEditImageViewController {
         // next
         undoItem.isEnabled = actions.isEmpty == false
     }
+    
+    deinit {
+        xprint(#function, #file.hub.lastPathComponent)
+    }
 }
 
 extension PEDrawImageViewController {

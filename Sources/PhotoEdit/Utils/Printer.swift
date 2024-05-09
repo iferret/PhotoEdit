@@ -14,6 +14,7 @@ import Foundation
 ///   - terminator: String
 func xprint(_ items: Optional<Any>..., separator: String = " ", terminator: String = "\n") {
 #if DEBUG
-    Swift.print(items, separator: separator, terminator: terminator)
+    let newText: String = items.compactMap { $0 }.map { "\($0)" }.joined(separator: separator)
+    Swift.print(newText, separator: separator, terminator: terminator)
 #endif
 }

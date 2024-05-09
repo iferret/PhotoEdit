@@ -158,6 +158,10 @@ class PEEditImageViewController: UIViewController {
         navigationController?.isNavigationBarHidden = false
     }
     
+    deinit {
+        xprint(#function, #file.hub.lastPathComponent)
+    }
+    
 }
 
 extension PEEditImageViewController {

@@ -58,6 +58,10 @@ class PEVideoViewController: UIViewController {
         _controller.player = .init(url: fileURL)
         _controller.videoGravity = .resizeAspectFill
         _controller.view.hero.id = "preview_layer"
+        _controller.delegate = self
+        if #available(iOS 16.0, *) {
+            _controller.setValue(false, forKey: "canHidePlaybackControls")
+        }
         return _controller
     }()
     
@@ -65,6 +69,8 @@ class PEVideoViewController: UIViewController {
     private let fileURL: URL
     /// Optional<(ResultType) -> Void>
     private var completionHandler: Optional<(ResultType) -> Void> = .none
+    /// Optional<NSKeyValueObservation>
+    private var observation: Optional<NSKeyValueObservation> = .none
     
     // MARK: 生命周期
     
@@ -87,6 +93,15 @@ class PEVideoViewController: UIViewController {
         // Do any additional setup after loading the view.
         // 初始化
         initialize()
+        // next
+        observation = controller.observe(\.isReadyForDisplay, options: .new) {[weak self] vc, _ in
+            guard let this = self else { return }
+            if #available(iOS 16.0, *) {
+                this.controller.setValue(true, forKey: "canHidePlaybackControls")
+            }
+            this.observation?.invalidate()
+            this.observation = .none
+        }
     }
    
     /// viewWillAppear
@@ -94,6 +109,21 @@ class PEVideoViewController: UIViewController {
     internal override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         navigationController?.isNavigationBarHidden = false
+    }
+    
+    /// viewDidAppear
+    /// - Parameter animated: Bool
+    internal override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        if #available(iOS 16.0, *) {
+            controller.setValue(true, forKey: "canHidePlaybackControls")
+        }
+    }
+    
+    deinit {
+        observation?.invalidate()
+        observation = .none
+        xprint(#function, #file.hub.lastPathComponent)
     }
 }
 
@@ -104,7 +134,7 @@ extension PEVideoViewController {
         // coding here ...
         view.backgroundColor = .hex("#000000")
         navigationItem.leftBarButtonItem = .disabled
-        
+        addChild(controller)
         // 布局
         view.addSubview(bottomView)
         bottomView.snp.makeConstraints {
@@ -131,6 +161,11 @@ extension PEVideoViewController {
         switch sender {
         case redoItem:
             navigationController?.popViewController(animated: true)
+            controller.player?.pause()
+            controller.player = .none
+            // clean cache
+            try? FileManager.default.removeItem(at: fileURL)
+            
         case useItem:
             // dismiss
             navigationController?.dismiss(animated: true, completion: .none)
@@ -145,4 +180,9 @@ extension PEVideoViewController {
     internal func completionHandler(_ handler: Optional<(ResultType) -> Void>) {
         self.completionHandler = handler
     }
+}
+
+// MARK: - AVPlayerViewControllerDelegate
+extension PEVideoViewController: AVPlayerViewControllerDelegate {
+    
 }
