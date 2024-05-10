@@ -6,7 +6,7 @@ import ZLPhotoBrowser
 import Hero
 
 /// PhotoEditViewControllerDelegate
-public protocol PhotoEditViewControllerDelegate : UINavigationControllerDelegate  {
+public protocol PhotoEditViewControllerDelegate : AnyObject  {
     
     /// shouldEditImage
     /// - Parameters:
@@ -41,6 +41,8 @@ public class PhotoEditViewController: UINavigationController {
     public var closeWhenFinished: Bool = true {
         didSet { closeWhenFinishedWith(closeWhenFinished) }
     }
+    /// Optional<PhotoEditViewControllerDelegate>
+    public weak var photoEditDelegate: Optional<PhotoEditViewControllerDelegate> = .none
     
     // MARK: 生命周期
     
@@ -162,7 +164,6 @@ extension PhotoEditViewController: PECameraViewControllerDelegate {
     ///   - uiImage: UIImage
     /// - Returns: Bool
     internal func controller(_ controller: PECameraViewController, shouldEditImage uiImage: UIImage) -> Bool {
-        guard let delegate = delegate as? PhotoEditViewControllerDelegate else { return true }
-        return delegate.controller(self, shouldEditImage: uiImage)
+        return photoEditDelegate?.controller(self, shouldEditImage: uiImage) ?? true
     }
 }
