@@ -172,10 +172,14 @@ extension PEImageViewController {
         case useItem:
             // dismiss
             if closeWhenFinished == true {
-                navigationController?.dismiss(animated: true, completion: .none)
+                let completionHandler = completionHandler
+                let uiImage: UIImage = uiImage
+                navigationController?.dismiss(animated: true) {
+                    completionHandler?(.photo(uiImage))
+                }
+            } else { // next
+                completionHandler?(.photo(uiImage))
             }
-            // next
-            completionHandler?(.photo(uiImage))
         default: break
         }
     }

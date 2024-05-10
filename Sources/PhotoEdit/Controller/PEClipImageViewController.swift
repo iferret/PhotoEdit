@@ -180,8 +180,8 @@ extension PEClipImageViewController {
             rotateActionHandler()
         case doneItem:
             let newImage: UIImage = clipImageWith(origiImage)
-            completionHandler?(newImage)
             navigationController?.popViewController(animated: true)
+            completionHandler?(newImage)
             
         default: break
         }

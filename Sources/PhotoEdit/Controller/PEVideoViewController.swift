@@ -184,10 +184,14 @@ extension PEVideoViewController {
         case useItem:
             // dismiss
             if closeWhenFinished == true {
-                navigationController?.dismiss(animated: true, completion: .none)
+                let completionHandler = completionHandler
+                let fileURL = fileURL
+                navigationController?.dismiss(animated: true) {
+                    completionHandler?(.video(fileURL))
+                }
+            } else { // next
+                completionHandler?(.video(fileURL))
             }
-            // next
-            completionHandler?(.video(fileURL))
         default: break
         }
     }

@@ -224,12 +224,16 @@ extension PEEditImageViewController {
             }
         case doneItem:
             guard let navi = navigationController else { return }
-            completionHandler?(.photo(editImage))
             if navi.viewControllers.count > 1 {
                 navigationController?.popViewController(animated: true)
+                completionHandler?(.photo(editImage))
             } else {
                 if closeWhenFinished == true {
-                    navigationController?.dismiss(animated: true, completion: .none)
+                    let completionHandler = completionHandler
+                    let editImage = editImage
+                    navigationController?.dismiss(animated: true) {
+                        completionHandler?(.photo(editImage))
+                    }
                 }
             }
         case undoItem:

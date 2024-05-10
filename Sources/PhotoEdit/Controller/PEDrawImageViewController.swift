@@ -229,8 +229,8 @@ extension PEDrawImageViewController {
         case doneItem: // 完成操作
             doneActionHandler {[weak self] newImage in
                 guard let this = self else { return }
-                this.completionHandler?(newImage)
                 this.navigationController?.popViewController(animated: true)
+                this.completionHandler?(newImage)
             }
             
         default: break
