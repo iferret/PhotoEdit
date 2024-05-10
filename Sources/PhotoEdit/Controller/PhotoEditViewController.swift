@@ -5,6 +5,23 @@ import UIKit
 import ZLPhotoBrowser
 import Hero
 
+/// PhotoEditViewControllerDelegate
+public protocol PhotoEditViewControllerDelegate : UINavigationControllerDelegate  {
+    
+    /// shouldEditImage
+    /// - Parameters:
+    ///   - cameraViewController: PhotoEditViewController
+    ///   - uiImage: UIImage
+    /// - Returns: Bool
+    func controller(_ controller: PhotoEditViewController, shouldEditImage uiImage: UIImage) -> Bool
+}
+
+extension PhotoEditViewControllerDelegate {
+    /// shouldEditImage
+    func controller(_ controller: PhotoEditViewController, shouldEditImage uiImage: UIImage) -> Bool { true }
+}
+
+
 /// PhotoEditViewController
 public class PhotoEditViewController: UINavigationController {
     
@@ -36,11 +53,14 @@ public class PhotoEditViewController: UINavigationController {
         case .camera:
             controller = PECameraViewController()
             (controller as! PECameraViewController).closeWhenFinished = closeWhenFinished
+            super.init(rootViewController: controller)
+            (controller as! PECameraViewController).delegate = self
         case .photo(let uiImage):
             controller = PEEditImageViewController(uiImage: uiImage)
             (controller as! PEEditImageViewController).closeWhenFinished = closeWhenFinished
+            super.init(rootViewController: controller)
         }
-        super.init(rootViewController: controller)
+        // next
         self.overrideUserInterfaceStyle = .dark
         self.modalPresentationStyle = .fullScreen
         self.interactivePopGestureRecognizer?.isEnabled = false
@@ -131,4 +151,18 @@ extension PhotoEditViewController {
         }
     }
     
+}
+
+// MARK: - PECameraViewControllerDelegate
+extension PhotoEditViewController: PECameraViewControllerDelegate {
+    
+    /// shouldEditImage
+    /// - Parameters:
+    ///   - controller: PECameraViewController
+    ///   - uiImage: UIImage
+    /// - Returns: Bool
+    internal func controller(_ controller: PECameraViewController, shouldEditImage uiImage: UIImage) -> Bool {
+        guard let delegate = delegate as? PhotoEditViewControllerDelegate else { return true }
+        return delegate.controller(self, shouldEditImage: uiImage)
+    }
 }

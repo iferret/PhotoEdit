@@ -11,12 +11,31 @@ import SnapKit
 import CoreMotion
 import Hero
 
+/// PECameraViewControllerDelegate
+protocol PECameraViewControllerDelegate: AnyObject {
+    
+    /// shouldEditImage
+    /// - Parameters:
+    ///   - controller: PECameraViewController
+    ///   - uiImage: UIImage
+    /// - Returns: Bool
+    func controller(_ controller: PECameraViewController, shouldEditImage uiImage: UIImage) -> Bool
+}
+
+extension PECameraViewControllerDelegate {
+    /// shouldEditImage
+    internal func controller(_ controller: PECameraViewController, shouldEditImage uiImage: UIImage) -> Bool { true }
+}
+
 /// PECameraViewController
 class PECameraViewController: UIViewController {
     // next
     typealias ResultType = PhotoEditViewController.ResultType
     
     // MARK: 公开属性
+    
+    /// Optional<PECameraViewControllerDelegate>
+    internal weak var delegate: Optional<PECameraViewControllerDelegate> = .none
     
     /// Bool
     internal var closeWhenFinished: Bool = true
@@ -864,6 +883,7 @@ extension PECameraViewController: AVCapturePhotoCaptureDelegate {
             session.hub.stopRunning()
             // 进入预览页
             let controller: PEImageViewController = .init(uiImage: newImage)
+            controller.delegate = self
             controller.closeWhenFinished = closeWhenFinished
             controller.completionHandler(completionHandler)
             navigationController?.pushViewController(controller, animated: true)
@@ -952,5 +972,18 @@ extension PECameraViewController: AVCaptureFileOutputRecordingDelegate {
             timeLabel.isHidden = true
             timeLabel.text = .none
         }
+    }
+}
+
+// MARK: - PEImageViewControllerDelegate
+extension PECameraViewController: PEImageViewControllerDelegate {
+    
+    /// shouldEditImage
+    /// - Parameters:
+    ///   - controller: PEImageViewController
+    ///   - uiImage: UIImage
+    /// - Returns: Bool
+    internal func controller(_ controller: PEImageViewController, shouldEditImage uiImage: UIImage) -> Bool {
+        return delegate?.controller(self, shouldEditImage: uiImage) ?? true
     }
 }

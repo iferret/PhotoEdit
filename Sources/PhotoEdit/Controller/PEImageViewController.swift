@@ -9,11 +9,30 @@ import UIKit
 import SnapKit
 import Hero
 
+/// PEImageViewControllerDelegate
+protocol PEImageViewControllerDelegate: AnyObject {
+    
+    /// shouldEditImage
+    /// - Parameters:
+    ///   - imageViewController: PEImageViewController
+    ///   - uiImage: UIImage
+    /// - Returns: Bool
+    func controller(_ controller: PEImageViewController, shouldEditImage uiImage: UIImage) -> Bool
+}
+
+extension PEImageViewControllerDelegate {
+    /// shouldEditImage
+    internal func controller(_ controller: PEImageViewController, shouldEditImage uiImage: UIImage) -> Bool { true }
+}
+
 /// PEImageViewController
 class PEImageViewController: UIViewController {
     typealias ResultType = PhotoEditViewController.ResultType
     
     // MARK: 公开属性
+    
+    /// Optional<PEImageViewControllerDelegate>
+    internal weak var delegate: Optional<PEImageViewControllerDelegate> = .none
     
     /// Bool
     internal var closeWhenFinished: Bool = true
@@ -158,17 +177,33 @@ extension PEImageViewController {
         case redoItem:
             navigationController?.popViewController(animated: true)
         case editItem:
-            let controller: PEEditImageViewController = .init(uiImage: uiImage)
-            controller.completionHandler {[weak self] result in
-                guard let this = self else { return }
-                switch result {
-                case .photo(let uiImage):
-                    this.uiImage = uiImage
-                    this.imgView.image = uiImage
-                default: break
+            if let delegate = delegate, delegate.controller(self, shouldEditImage: uiImage) == true {
+                // next
+                let controller: PEEditImageViewController = .init(uiImage: uiImage)
+                controller.completionHandler {[weak self] result in
+                    guard let this = self else { return }
+                    switch result {
+                    case .photo(let uiImage):
+                        this.uiImage = uiImage
+                        this.imgView.image = uiImage
+                    default: break
+                    }
                 }
+                navigationController?.pushViewController(controller, animated: true)
+            } else {
+                // next
+                let controller: PEEditImageViewController = .init(uiImage: uiImage)
+                controller.completionHandler {[weak self] result in
+                    guard let this = self else { return }
+                    switch result {
+                    case .photo(let uiImage):
+                        this.uiImage = uiImage
+                        this.imgView.image = uiImage
+                    default: break
+                    }
+                }
+                navigationController?.pushViewController(controller, animated: true)
             }
-            navigationController?.pushViewController(controller, animated: true)
         case useItem:
             // dismiss
             if closeWhenFinished == true {
