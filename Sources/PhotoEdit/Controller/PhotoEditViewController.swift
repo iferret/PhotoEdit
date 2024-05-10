@@ -46,7 +46,7 @@ public class PhotoEditViewController: UINavigationController {
         self.interactivePopGestureRecognizer?.isEnabled = false
         self.navigationBar.standardAppearance = .init()
         self.navigationBar.standardAppearance.configureWithTransparentBackground()
-        self.hero.modalAnimationType = .fade
+        self.hero.modalAnimationType = .selectBy(presenting: .cover(direction: .up), dismissing: .uncover(direction: .down))
         self.hero.navigationAnimationType = .fade
         self.hero.isEnabled = true
     }
