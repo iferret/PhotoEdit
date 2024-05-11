@@ -177,7 +177,8 @@ extension PEImageViewController {
         case redoItem:
             navigationController?.popViewController(animated: true)
         case editItem:
-            if let delegate = delegate, delegate.controller(self, shouldEditImage: uiImage) == true {
+            if let delegate = delegate {
+                guard delegate.controller(self, shouldEditImage: uiImage) == true else { return }
                 // next
                 let controller: PEEditImageViewController = .init(uiImage: uiImage)
                 controller.completionHandler {[weak self] result in

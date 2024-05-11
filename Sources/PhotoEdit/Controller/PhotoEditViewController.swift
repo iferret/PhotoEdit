@@ -42,7 +42,7 @@ public class PhotoEditViewController: UINavigationController {
         didSet { closeWhenFinishedWith(closeWhenFinished) }
     }
     /// Optional<PhotoEditViewControllerDelegate>
-    public weak var photoEditDelegate: Optional<PhotoEditViewControllerDelegate> = .none
+    public weak var photoEditDelegate: Optional<PhotoEditViewControllerDelegate> = .none 
     
     // MARK: 生命周期
     
