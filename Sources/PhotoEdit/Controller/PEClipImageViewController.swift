@@ -32,9 +32,9 @@ class PEClipImageViewController: ZLClipImageViewController {
         return _item
     }()
     
-    /// 完成
-    private lazy var doneItem: UIBarButtonItem = {
-        let _item: UIBarButtonItem = .init(title: "完成", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+    /// 确认
+    private lazy var confirmItem: UIBarButtonItem = {
+        let _item: UIBarButtonItem = .init(title: "确认", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
@@ -48,7 +48,7 @@ class PEClipImageViewController: ZLClipImageViewController {
         _toolbar.standardAppearance = .init()
         _toolbar.standardAppearance.configureWithTransparentBackground()
         _toolbar.backgroundColor = .clear
-        _toolbar.items = [backItem, .flexible(), undoItem, .flexible(), doneItem]
+        _toolbar.items = [backItem, .flexible(), undoItem, .flexible(), confirmItem]
         return _toolbar
     }()
     
@@ -127,7 +127,7 @@ class PEClipImageViewController: ZLClipImageViewController {
     internal override func endEditingActionHandler() {
         super.endEditingActionHandler()
         undoItem.isEnabled = true
-        doneItem.isEnabled = true
+        confirmItem.isEnabled = true
     }
     
     deinit {
@@ -178,7 +178,7 @@ extension PEClipImageViewController {
             // doneItem.isEnabled = false
         case rotationItem:
             rotateActionHandler()
-        case doneItem:
+        case confirmItem:
             let newImage: UIImage = clipImageWith(origiImage)
             navigationController?.popViewController(animated: true)
             completionHandler?(newImage)

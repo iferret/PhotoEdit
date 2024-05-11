@@ -32,7 +32,7 @@ class PEDrawImageViewController: ZLEditImageViewController {
         _toolbar.standardAppearance.backgroundColor = .clear
         _toolbar.standardAppearance.shadowColor = .clear
         _toolbar.backgroundColor = .clear
-        _toolbar.items = [backItem, .flexible(), undoItem, .flexible(), doneItem]
+        _toolbar.items = [backItem, .flexible(), undoItem, .flexible(), confirmItem]
         return _toolbar
     }()
     
@@ -54,9 +54,9 @@ class PEDrawImageViewController: ZLEditImageViewController {
         return _item
     }()
     
-    /// 完成
-    private lazy var doneItem: UIBarButtonItem = {
-        let _item: UIBarButtonItem = .init(title: "完成", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
+    /// 确认
+    private lazy var confirmItem: UIBarButtonItem = {
+        let _item: UIBarButtonItem = .init(title: "确认", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
         _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
@@ -226,7 +226,7 @@ extension PEDrawImageViewController {
             controller.completionHandler = completionHandler
             controllers.append(controller)
             navigationController?.setViewControllers(controllers, animated: false)
-        case doneItem: // 完成操作
+        case confirmItem: // 完成操作
             doneActionHandler {[weak self] newImage in
                 guard let this = self else { return }
                 this.navigationController?.popViewController(animated: true)
