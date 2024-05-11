@@ -66,8 +66,14 @@ public class PhotoEditViewController: UINavigationController {
         self.overrideUserInterfaceStyle = .dark
         self.modalPresentationStyle = .fullScreen
         self.interactivePopGestureRecognizer?.isEnabled = false
-        self.navigationBar.standardAppearance = .init()
-        self.navigationBar.standardAppearance.configureWithTransparentBackground()
+        self.navigationBar.standardAppearance = .transparent()
+        self.navigationBar.scrollEdgeAppearance = .transparent()
+        self.navigationBar.compactAppearance = .transparent()
+        if #available(iOS 15.0, *) {
+            self.navigationBar.compactScrollEdgeAppearance = .transparent()
+        } else {
+            // Fallback on earlier versions
+        }
         self.hero.modalAnimationType = .selectBy(presenting: .cover(direction: .up), dismissing: .uncover(direction: .down))
         self.hero.navigationAnimationType = .fade
         self.hero.isEnabled = true

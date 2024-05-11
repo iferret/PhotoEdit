@@ -31,6 +31,7 @@ class PEEditImageViewController: UIViewController {
         _scrolView.minimumZoomScale = 1.0
         _scrolView.maximumZoomScale = 5.0
         _scrolView.delegate = self
+        _scrolView.scrollsToTop = false
         return _scrolView
     }()
     
@@ -160,7 +161,7 @@ class PEEditImageViewController: UIViewController {
     /// - Parameter animated: Bool
     internal override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        navigationController?.isNavigationBarHidden = false
+        navigationController?.isNavigationBarHidden = true
     }
     
     deinit {
