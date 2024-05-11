@@ -173,6 +173,7 @@ extension PEDrawImageViewController {
     private func initialize() {
         // coding here ...
         view.backgroundColor = .hex("#000000")
+        topShadowView.isHidden = true
         
         // 布局
         
