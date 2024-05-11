@@ -580,13 +580,9 @@ open class ZLClipImageViewController: UIViewController {
         let image = clipImage()
         dismissAnimateFromRect = clipBoxFrame
         dismissAnimateImage = image.clipImage
-        var newImage: UIImage = originImage.zl.clipImage(angle: angle, editRect: image.editRect, isCircle: selectedRatio.isCircle)
-        let scale: CGFloat = min(min(UIScreen.main.bounds.width / newImage.size.width, 1.0), min(UIScreen.main.bounds.height / newImage.size.height, 1.0))
-        if scale < 1.0 {
-            let size: CGSize = .init(width: newImage.size.width * scale, height: newImage.size.height * scale)
-            newImage = newImage.zl.resize_vI(size, scale: nil) ?? newImage.zl.resize(size) ?? newImage
-        }
-        return newImage
+        let newImage: UIImage = originImage.zl.clipImage(angle: angle, editRect: image.editRect, isCircle: selectedRatio.isCircle)
+        // compressWith
+        return newImage.zl.compressWith(UIScreen.main.bounds.size)
     }
     
     /// rotateActionHandler

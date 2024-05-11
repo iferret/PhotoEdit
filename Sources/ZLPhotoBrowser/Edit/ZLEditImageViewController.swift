@@ -1167,11 +1167,7 @@ open class ZLEditImageViewController: UIViewController {
         var editModel: ZLEditImageModel?
         
         guard hasEdit == true else {
-            let scale: CGFloat = min(min(UIScreen.main.bounds.width / resImage.size.width, 1.0), min(UIScreen.main.bounds.height / resImage.size.height, 1.0))
-            if scale < 1.0 {
-                let size: CGSize = .init(width: resImage.size.width * scale, height: resImage.size.height * scale)
-                resImage = resImage.zl.resize_vI(size, scale: nil) ?? resImage.zl.resize(size) ?? resImage
-            }
+            resImage = newImage.zl.compressWith(UIScreen.main.bounds.size)
             block(resImage)
             return
         }
@@ -1182,11 +1178,7 @@ open class ZLEditImageViewController: UIViewController {
             newImage = newImage.zl.clipImage(angle: this.currentClipStatus.angle,
                                              editRect: this.currentClipStatus.editRect,
                                              isCircle: this.currentClipStatus.ratio?.isCircle ?? false)
-            let scale: CGFloat = min(min(UIScreen.main.bounds.width / newImage.size.width, 1.0), min(UIScreen.main.bounds.height / newImage.size.height, 1.0))
-            if scale < 1.0 {
-                let size: CGSize = .init(width: newImage.size.width * scale, height: newImage.size.height * scale)
-                newImage = newImage.zl.resize_vI(size, scale: nil) ?? newImage.zl.resize(size) ?? newImage
-            }
+            newImage = newImage.zl.compressWith(UIScreen.main.bounds.size)
             // hud.hide()
             block(newImage)
         }
