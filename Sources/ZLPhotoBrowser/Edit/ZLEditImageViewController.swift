@@ -1167,7 +1167,7 @@ open class ZLEditImageViewController: UIViewController {
         var editModel: ZLEditImageModel?
         
         guard hasEdit == true else {
-            resImage = newImage.zl.compressWith(UIScreen.main.bounds.size)
+            resImage = resImage.zl.compressWith(UIScreen.main.bounds.size)
             block(resImage)
             return
         }
