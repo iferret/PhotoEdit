@@ -32,7 +32,11 @@ let package = Package(
                 .copy("PrivacyInfo.xcprivacy")
             ]),
         .target(name: "PhotoEdit",
-                dependencies: ["ZLPhotoBrowser", "SnapKit", "Hero"],
+                dependencies: [
+                    .byName(name: "SnapKit"),
+                    .byName(name: "Hero"),
+                    .byName(name: "ZLPhotoBrowser"),
+                ],
                 path: "Sources/PhotoEdit", resources: [
                     .process("PhotoEdit.xcassets")
                 ]),
