@@ -576,6 +576,6 @@ extension ZLPhotoBrowserWrapper where Base: UIImage {
             let size: CGSize = .init(width: newImage.size.width * scale, height: newImage.size.height * scale)
             newImage = newImage.zl.resize_vI(size, scale: nil) ?? newImage.zl.resize(size) ?? newImage
         }
-        return base
+        return newImage
     }
 }
