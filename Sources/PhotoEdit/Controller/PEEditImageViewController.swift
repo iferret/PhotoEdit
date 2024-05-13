@@ -20,6 +20,9 @@ class PEEditImageViewController: UIViewController {
     /// Bool
     internal var closeWhenFinished: Bool = true
     
+    /// maxImageBytes
+    internal var maxImageBytes: Int = 1024 * 1024 * 2
+    
     // MARK: 私有属性
     
     /// UIScrollView
@@ -247,6 +250,7 @@ extension PEEditImageViewController {
             
         case clipItem: // 裁剪
             let controller: PEClipImageViewController = .init(image: editImage)
+            controller.maxImageBytes = maxImageBytes
             controller.completionHandler {[weak self] newImage in
                 guard let this = self else { return }
                 this.editImage = newImage
@@ -258,6 +262,7 @@ extension PEEditImageViewController {
      
         case drawItem: // 涂鸦
             let controller: PEDrawImageViewController = .init(uiImage: editImage, drawType: .mosaic)
+            controller.maxImageBytes = maxImageBytes
             controller.completionHandler {[weak self] newImage in
                 guard let this = self else { return }
                 this.editImage = newImage

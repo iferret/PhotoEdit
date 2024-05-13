@@ -43,7 +43,8 @@ public class PhotoEditViewController: UINavigationController {
     }
     /// Optional<PhotoEditViewControllerDelegate>
     public weak var photoEditDelegate: Optional<PhotoEditViewControllerDelegate> = .none 
-    
+    /// maxImageBytes
+    public var maxImageBytes: Int = 1024 * 1024 * 2 
     // MARK: 生命周期
     
     /// 构建
@@ -55,11 +56,13 @@ public class PhotoEditViewController: UINavigationController {
         case .camera:
             controller = PECameraViewController()
             (controller as! PECameraViewController).closeWhenFinished = closeWhenFinished
+            (controller as! PECameraViewController).maxImageBytes = maxImageBytes
             super.init(rootViewController: controller)
             (controller as! PECameraViewController).delegate = self
         case .photo(let uiImage):
             controller = PEEditImageViewController(uiImage: uiImage)
             (controller as! PEEditImageViewController).closeWhenFinished = closeWhenFinished
+            (controller as! PEEditImageViewController).maxImageBytes = maxImageBytes
             super.init(rootViewController: controller)
         }
         // next

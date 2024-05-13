@@ -36,6 +36,8 @@ class PEImageViewController: UIViewController {
     
     /// Bool
     internal var closeWhenFinished: Bool = true
+    /// maxImageBytes
+    internal var maxImageBytes: Int = 1024 * 1024 * 2
     
     // MARK: 私有属性
     
@@ -181,6 +183,7 @@ extension PEImageViewController {
                 guard delegate.controller(self, shouldEditImage: uiImage) == true else { return }
                 // next
                 let controller: PEEditImageViewController = .init(uiImage: uiImage)
+                controller.maxImageBytes = maxImageBytes
                 controller.completionHandler {[weak self] result in
                     guard let this = self else { return }
                     switch result {

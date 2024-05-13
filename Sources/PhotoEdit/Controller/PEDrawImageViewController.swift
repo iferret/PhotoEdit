@@ -12,6 +12,12 @@ import SnapKit
 /// ZLEditImageViewController
 class PEDrawImageViewController: ZLEditImageViewController {
     
+    
+    // MARK: 公开属性
+    
+    /// maxImageBytes
+    internal var maxImageBytes: Int = 1024 * 1024 * 2
+    
     // MARK: 私有属性
     
     /// UIView
@@ -228,10 +234,24 @@ extension PEDrawImageViewController {
             controllers.append(controller)
             navigationController?.setViewControllers(controllers, animated: false)
         case confirmItem: // 完成操作
+            let maxImageBytes: Int = maxImageBytes
             doneActionHandler {[weak self] newImage in
-                guard let this = self else { return }
-                this.navigationController?.popViewController(animated: true)
-                this.completionHandler?(newImage)
+                DispatchQueue.global().async {
+                    do {
+                        let newImage: UIImage = try newImage.hub.compressImage(toByte: maxImageBytes)
+                        DispatchQueue.main.async {[weak self] in
+                            guard let this = self else { return }
+                            this.navigationController?.popViewController(animated: true)
+                            this.completionHandler?(newImage)
+                        }
+                    } catch {
+                        DispatchQueue.main.async {[weak self] in
+                            guard let this = self else { return }
+                            this.navigationController?.popViewController(animated: true)
+                            this.completionHandler?(newImage)
+                        }
+                    }
+                }
             }
             
         default: break
