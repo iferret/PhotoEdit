@@ -34,11 +34,6 @@ class PEImageViewController: UIViewController {
     /// Optional<PEImageViewControllerDelegate>
     internal weak var delegate: Optional<PEImageViewControllerDelegate> = .none
     
-    /// Bool
-    internal var closeWhenFinished: Bool = true
-    /// maxImageBytes
-    internal var maxImageBytes: Int = 1024 * 1024 * 2
-    
     // MARK: 私有属性
     
     /// UIImageView
@@ -183,7 +178,6 @@ extension PEImageViewController {
                 guard delegate.controller(self, shouldEditImage: uiImage) == true else { return }
                 // next
                 let controller: PEEditImageViewController = .init(uiImage: uiImage)
-                controller.maxImageBytes = maxImageBytes
                 controller.completionHandler {[weak self] result in
                     guard let this = self else { return }
                     switch result {
@@ -209,15 +203,16 @@ extension PEImageViewController {
                 navigationController?.pushViewController(controller, animated: true)
             }
         case useItem:
+            // 压缩图片
+            var uiImage: UIImage = uiImage.zl.compressWith(UIScreen.main.bounds.size)
+            do {
+                uiImage = try uiImage.hub.compressImage(toByte: PEConfiguration.default().maxImageBytes)
+            } catch {
+                xprint(error)
+            }
             // dismiss
-            if closeWhenFinished == true {
+            if PEConfiguration.default().closeWhenFinished == true {
                 let completionHandler = completionHandler
-                var uiImage: UIImage = uiImage.zl.compressWith(UIScreen.main.bounds.size)
-                do {
-                    uiImage = try uiImage.hub.compressImage(toByte: maxImageBytes)
-                } catch {
-                    xprint(error)
-                }
                 navigationController?.dismiss(animated: true) {
                     completionHandler?(.photo(uiImage))
                 }

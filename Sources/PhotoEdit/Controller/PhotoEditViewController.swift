@@ -35,16 +35,9 @@ public class PhotoEditViewController: UINavigationController {
     public override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation { .portrait }
     /// SourceType
     public let sourceType: SourceType
-    /// 保存到相册
-    public var saveToAlbum: Bool = true
-    /// 自动关闭
-    public var closeWhenFinished: Bool = true {
-        didSet { closeWhenFinishedWith(closeWhenFinished) }
-    }
     /// Optional<PhotoEditViewControllerDelegate>
     public weak var photoEditDelegate: Optional<PhotoEditViewControllerDelegate> = .none 
-    /// maxImageBytes
-    public var maxImageBytes: Int = 1024 * 1024 * 2 
+
     // MARK: 生命周期
     
     /// 构建
@@ -55,14 +48,10 @@ public class PhotoEditViewController: UINavigationController {
         switch sourceType {
         case .camera:
             controller = PECameraViewController()
-            (controller as! PECameraViewController).closeWhenFinished = closeWhenFinished
-            (controller as! PECameraViewController).maxImageBytes = maxImageBytes
             super.init(rootViewController: controller)
             (controller as! PECameraViewController).delegate = self
         case .photo(let uiImage):
             controller = PEEditImageViewController(uiImage: uiImage)
-            (controller as! PEEditImageViewController).closeWhenFinished = closeWhenFinished
-            (controller as! PEEditImageViewController).maxImageBytes = maxImageBytes
             super.init(rootViewController: controller)
         }
         // next
@@ -97,6 +86,7 @@ public class PhotoEditViewController: UINavigationController {
     
     deinit {
         xprint(#function, #file.hub.lastPathComponent)
+        PEConfiguration.clearup()
     }
 }
 
@@ -116,7 +106,7 @@ extension PhotoEditViewController {
             first.completionHandler {[weak self] result in
                 guard let this = self else { return }
                 // 保存到相册
-                if this.saveToAlbum == true {
+                if PEConfiguration.default().saveToAlbum == true {
                     this.saveToAlbumWith(result)
                 }
                 // next
@@ -128,7 +118,7 @@ extension PhotoEditViewController {
             first.completionHandler {[weak self] result in
                 guard let this = self else { return }
                 // 保存到相册
-                if this.saveToAlbum == true {
+                if PEConfiguration.default().saveToAlbum == true {
                     this.saveToAlbumWith(result)
                 }
                 // next
@@ -145,20 +135,6 @@ extension PhotoEditViewController {
             UIImageWriteToSavedPhotosAlbum(uiImage, .none, .none, .none)
         case .video(let fileURL):
             UISaveVideoAtPathToSavedPhotosAlbum(fileURL.path, .none, .none, .none)
-        }
-    }
-    
-    /// closeWhenFinishedWith
-    /// - Parameter closeWhenFinished: Bool
-    private func closeWhenFinishedWith(_ closeWhenFinished: Bool) {
-        viewControllers.forEach { controller in
-            if let controller = controller as? PEEditImageViewController {
-                controller.closeWhenFinished = closeWhenFinished
-            } else if let controller = controller as? PEImageViewController {
-                controller.closeWhenFinished = closeWhenFinished
-            } else if let controller = controller as? PEVideoViewController {
-                controller.closeWhenFinished = closeWhenFinished
-            }
         }
     }
     

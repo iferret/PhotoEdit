@@ -13,11 +13,6 @@ import Hero
 /// PEClipImageViewController
 class PEClipImageViewController: ZLClipImageViewController {
     
-    // MARK: 公开属性
-    
-    /// maxImageBytes
-    internal var maxImageBytes: Int = 1024 * 1024 * 2
-    
     // MARK: 私有属性
     
     /// 返回
@@ -186,10 +181,9 @@ extension PEClipImageViewController {
             rotateActionHandler()
         case confirmItem:
             let newImage: UIImage = clipImageWith(origiImage)
-            let maxImageBytes: Int = maxImageBytes
             DispatchQueue.global().async {
                 do {
-                    let newImage: UIImage = try newImage.hub.compressImage(toByte: maxImageBytes)
+                    let newImage: UIImage = try newImage.hub.compressImage(toByte: PEConfiguration.default().maxImageBytes)
                     DispatchQueue.main.async {[weak self] in
                         guard let this = self else { return }
                         this.navigationController?.popViewController(animated: true)

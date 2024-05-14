@@ -14,15 +14,7 @@ import ZLPhotoBrowser
 class PEEditImageViewController: UIViewController {
     // next
     typealias ResultType = PhotoEditViewController.ResultType
-    
-    // MARK: 公开属性
-    
-    /// Bool
-    internal var closeWhenFinished: Bool = true
-    
-    /// maxImageBytes
-    internal var maxImageBytes: Int = 1024 * 1024 * 2
-    
+
     // MARK: 私有属性
     
     /// UIScrollView
@@ -234,7 +226,7 @@ extension PEEditImageViewController {
             } else {
                 let completionHandler = completionHandler
                 let editImage = editImage
-                if closeWhenFinished == true {
+                if PEConfiguration.default().closeWhenFinished == true {
                     navigationController?.dismiss(animated: true) {
                         completionHandler?(.photo(editImage))
                     }
@@ -250,7 +242,6 @@ extension PEEditImageViewController {
             
         case clipItem: // 裁剪
             let controller: PEClipImageViewController = .init(image: editImage)
-            controller.maxImageBytes = maxImageBytes
             controller.completionHandler {[weak self] newImage in
                 guard let this = self else { return }
                 this.editImage = newImage
@@ -262,7 +253,6 @@ extension PEEditImageViewController {
      
         case drawItem: // 涂鸦
             let controller: PEDrawImageViewController = .init(uiImage: editImage, drawType: .mosaic)
-            controller.maxImageBytes = maxImageBytes
             controller.completionHandler {[weak self] newImage in
                 guard let this = self else { return }
                 this.editImage = newImage

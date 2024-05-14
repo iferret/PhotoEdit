@@ -37,11 +37,6 @@ class PECameraViewController: UIViewController {
     /// Optional<PECameraViewControllerDelegate>
     internal weak var delegate: Optional<PECameraViewControllerDelegate> = .none
     
-    /// Bool
-    internal var closeWhenFinished: Bool = true
-    /// maxImageBytes
-    internal var maxImageBytes: Int = 1024 * 1024 * 2
-    
     // MARK: 私有属性
     
     /// 闪光灯
@@ -885,9 +880,7 @@ extension PECameraViewController: AVCapturePhotoCaptureDelegate {
             session.hub.stopRunning()
             // 进入预览页
             let controller: PEImageViewController = .init(uiImage: newImage)
-            controller.maxImageBytes = maxImageBytes
             controller.delegate = self
-            controller.closeWhenFinished = closeWhenFinished
             controller.completionHandler(completionHandler)
             navigationController?.pushViewController(controller, animated: true)
             self.previewView.unhood()
@@ -967,7 +960,6 @@ extension PECameraViewController: AVCaptureFileOutputRecordingDelegate {
         } else {
             // next
             let controller: PEVideoViewController = .init(fileURL: outputFileURL)
-            controller.closeWhenFinished = closeWhenFinished
             controller.completionHandler(completionHandler)
             navigationController?.pushViewController(controller, animated: true)
             // next
