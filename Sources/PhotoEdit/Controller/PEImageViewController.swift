@@ -212,7 +212,12 @@ extension PEImageViewController {
             // dismiss
             if closeWhenFinished == true {
                 let completionHandler = completionHandler
-                let uiImage: UIImage = uiImage
+                var uiImage: UIImage = uiImage.zl.compressWith(UIScreen.main.bounds.size)
+                do {
+                    uiImage = try uiImage.hub.compressImage(toByte: maxImageBytes)
+                } catch {
+                    xprint(error)
+                }
                 navigationController?.dismiss(animated: true) {
                     completionHandler?(.photo(uiImage))
                 }

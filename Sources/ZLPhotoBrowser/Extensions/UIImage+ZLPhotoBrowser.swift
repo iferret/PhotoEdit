@@ -569,7 +569,7 @@ extension ZLPhotoBrowserWrapper where Base: UIImage {
     /// 压缩图片
     /// - Parameter size: CGSize
     /// - Returns: UIImage
-    internal func compressWith(_ size: CGSize) -> UIImage {
+    public func compressWith(_ size: CGSize) -> UIImage {
         var newImage: UIImage = base
         let scale: CGFloat = max(min(size.width / newImage.size.width, 1.0), min(size.height / newImage.size.height, 1.0))
         if scale < 1.0 {
