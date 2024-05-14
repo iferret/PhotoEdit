@@ -27,6 +27,11 @@ public class PEConfiguration: NSObject {
     
     // MARK: 生命周期
     
+    /// init
+    private override init() {
+        super.init()
+    }
+    
     /// `default`
     /// - Returns: PEConfiguration
     public static func `default`() -> PEConfiguration {
