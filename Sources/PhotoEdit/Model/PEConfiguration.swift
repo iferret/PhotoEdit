@@ -18,7 +18,10 @@ public class PEConfiguration: NSObject {
     public var closeWhenFinished: Bool = true
     /// maxImageBytes
     public var maxImageBytes: Int = 1024 * 1024 * 2
-    
+    /// UIFont
+    public var barItemFont: UIFont = .pingfang(ofSize: 18.0)
+    /// UIFont
+    public var buttonFont: UIFont = .pingfang(ofSize: 18.0)
     
     // MARK: 私有属性
     

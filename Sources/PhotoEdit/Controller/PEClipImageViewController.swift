@@ -18,17 +18,17 @@ class PEClipImageViewController: ZLClipImageViewController {
     /// 返回
     private lazy var backItem: UIBarButtonItem = {
         let _item: UIBarButtonItem = .init(title: "返回", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
         return _item
     }()
     
     /// 还原
     private lazy var undoItem: UIBarButtonItem = {
         let _item: UIBarButtonItem = .init(title: "还原", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
         _item.isEnabled = false
         return _item
     }()
@@ -36,9 +36,9 @@ class PEClipImageViewController: ZLClipImageViewController {
     /// 确认
     private lazy var confirmItem: UIBarButtonItem = {
         let _item: UIBarButtonItem = .init(title: "确认", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
         // _item.isEnabled = false
         return _item
     }()

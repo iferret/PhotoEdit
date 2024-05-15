@@ -42,16 +42,16 @@ class PEEditImageViewController: UIViewController {
     /// 取消
     private lazy var cancelItem: UIBarButtonItem = {
         let _item: UIBarButtonItem = .init(title: "取消", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
         return _item
     }()
         /// 重置
     private lazy var undoItem: UIBarButtonItem = {
         let _item: UIBarButtonItem = .init(title: "重置", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
         _item.isEnabled = false
         return _item
     }()
@@ -59,9 +59,9 @@ class PEEditImageViewController: UIViewController {
     /// 完成
     private lazy var doneItem: UIBarButtonItem = {
         let _item: UIBarButtonItem = .init(title: "完成", style: .plain, target: self, action: #selector(itemActionHandler(_:)))
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
-        _item.setTitleTextAttributes([.font: UIFont.pingfang(ofSize: 18.0), .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .normal)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF")], for: .highlighted)
+        _item.setTitleTextAttributes([.font: PEConfiguration.default().barItemFont, .foregroundColor: UIColor.hex("#FFFFFF", alpha: 0.4)], for: .disabled)
         // _item.isEnabled = false
         return _item
     }()

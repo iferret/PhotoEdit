@@ -117,7 +117,7 @@ class PECameraViewController: UIViewController {
         let _button: UIButton = .init(type: .custom)
         _button.setTitle("取消", for: .normal)
         _button.setTitleColor(.hex("#F9F9F9"), for: .normal)
-        _button.titleLabel?.font = .pingfang(ofSize: 18.0)
+        _button.titleLabel?.font = PEConfiguration.default().buttonFont
         _button.addTarget(self, action: #selector(buttonActionHandler(_:)), for: .touchUpInside)
         return _button
     }()
