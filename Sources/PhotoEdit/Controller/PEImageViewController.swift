@@ -42,7 +42,8 @@ class PEImageViewController: UIViewController {
     private lazy var imgView: UIImageView = {
         let _imgView: UIImageView = .init(image: uiImage)
         _imgView.contentMode = .scaleAspectFit
-        _imgView.hero.id = "preview_layer"
+        _imgView.sizeToFit()
+        // _imgView.hero.id = "preview_layer"
         return _imgView
     }()
     
@@ -148,17 +149,8 @@ extension PEImageViewController {
         // 布局
         view.addSubview(imgView)
         imgView.snp.makeConstraints {
-            $0.left.right.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(view.safeAreaLayoutGuide.snp.width).multipliedBy(uiImage.size.height / uiImage.size.width)
-            if UIApplication.shared.hub.safeAreaInsets.bottom <= 0.0 {
-                if UIDevice.current.userInterfaceIdiom == .pad {
-                    $0.top.equalTo(view)
-                } else {
-                    $0.top.equalTo(view.safeAreaLayoutGuide)
-                }
-            } else {
-                $0.top.equalTo(view.safeAreaLayoutGuide).offset(50.0)
-            }
+            $0.center.equalToSuperview()
+            $0.edges.lessThanOrEqualToSuperview()
         }
         
         view.addSubview(bottomView)
