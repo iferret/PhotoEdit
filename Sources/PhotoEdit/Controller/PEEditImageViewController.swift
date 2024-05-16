@@ -17,24 +17,13 @@ class PEEditImageViewController: UIViewController {
 
     // MARK: 私有属性
     
-    /// UIScrollView
-    private lazy var scrollView: UIScrollView = {
-        let _scrolView: UIScrollView = .init(frame: .zero)
-        _scrolView.showsVerticalScrollIndicator = false
-        _scrolView.showsHorizontalScrollIndicator = false
-        _scrolView.contentInsetAdjustmentBehavior = .never
-        _scrolView.minimumZoomScale = 1.0
-        _scrolView.maximumZoomScale = 5.0
-        _scrolView.delegate = self
-        _scrolView.scrollsToTop = false
-        return _scrolView
-    }()
-    
     /// UIImageView
     private lazy var imgView: UIImageView = {
         let _imgView: UIImageView = .init(image: editImage)
         _imgView.contentMode = .scaleAspectFit
-        _imgView.hero.id = "preview_layer"
+        _imgView.contentMode = .scaleAspectFit
+        _imgView.sizeToFit()
+        //_imgView.hero.id = "preview_layer"
         // _imgView.backgroundColor = .random
         return _imgView
     }()
@@ -112,13 +101,6 @@ class PEEditImageViewController: UIViewController {
         return _toolbar
     }()
     
-    /// 点击手势
-    private lazy var tapGesture: UITapGestureRecognizer = {
-        let _tap: UITapGestureRecognizer = .init(target: self, action: #selector(tapActionHandler(_:)))
-        _tap.numberOfTapsRequired = 2
-        return _tap
-    }()
-    
     /// UIImage
     private let originImage: UIImage
     /// UIImage
@@ -172,17 +154,13 @@ extension PEEditImageViewController {
         // coding here ...
         view.backgroundColor = .hex("#000000")
         navigationItem.leftBarButtonItem = .disabled
-        scrollView.addGestureRecognizer(tapGesture)
         // imgView.isUserInteractionEnabled = true
         
         // 布局
-        imgView.frame = view.bounds
-        scrollView.contentSize = view.bounds.size
-        scrollView.addSubview(imgView)
-        
-        view.addSubview(scrollView)
-        scrollView.snp.makeConstraints {
-            $0.edges.equalToSuperview()
+        view.addSubview(imgView)
+        imgView.snp.makeConstraints {
+            $0.center.equalToSuperview()
+            $0.edges.lessThanOrEqualToSuperview()
         }
         
         view.addSubview(bottomView)
@@ -264,42 +242,11 @@ extension PEEditImageViewController {
         default: break
         }
     }
-    
-    /// tapActionHandler
-    /// - Parameter sender: UITapGestureRecognizer
-    @objc private func tapActionHandler(_ sender: UITapGestureRecognizer) {
-        let zoomScale: CGFloat = (1.0 ..< 2.0).contains(scrollView.zoomScale) == true ? 2.0 : 1.0
-        let newRect: CGRect = zoomRectWith(zoomScale, center: sender.location(in: .none))
-        scrollView.zoom(to: newRect, animated: true)
-    }
-    
-    /// zoomRectWith
-    /// - Parameters:
-    ///   - scale: CGFloat
-    ///   - center: CGPoint
-    /// - Returns: CGRect
-    private func zoomRectWith(_ scale: CGFloat, center: CGPoint) -> CGRect {
-        let newHeight: CGFloat = scrollView.bounds.height / scale
-        let newWidth: CGFloat = scrollView.bounds.width / scale
-        return .init(x: center.x - newWidth * 0.5, y: center.y - newHeight * 0.5, width: newWidth, height: newHeight)
-    }
-    
+  
     /// completionHandler
     /// - Parameter handler: Optional<(ResultType) -> Void>
     internal func completionHandler(_ handler: Optional<(ResultType) -> Void>) {
         self.completionHandler = handler
-    }
-    
-}
-
-// MARK: - UIScrollViewDelegate
-extension PEEditImageViewController: UIScrollViewDelegate {
-    
-    /// viewForZooming
-    /// - Parameter scrollView: UIScrollView
-    /// - Returns: UIView
-    internal func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        return imgView
     }
     
 }
