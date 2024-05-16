@@ -37,6 +37,8 @@ public class PhotoEditViewController: UINavigationController {
     public let sourceType: SourceType
     /// Optional<PhotoEditViewControllerDelegate>
     public weak var photoEditDelegate: Optional<PhotoEditViewControllerDelegate> = .none 
+    /// Bool 
+    public override var prefersStatusBarHidden: Bool { true  }
 
     // MARK: 生命周期
     
@@ -58,6 +60,7 @@ public class PhotoEditViewController: UINavigationController {
         self.overrideUserInterfaceStyle = .dark
         self.modalPresentationStyle = .fullScreen
         self.interactivePopGestureRecognizer?.isEnabled = false
+        self.modalPresentationCapturesStatusBarAppearance = true
         self.navigationBar.standardAppearance = .transparent()
         self.navigationBar.scrollEdgeAppearance = .transparent()
         self.navigationBar.compactAppearance = .transparent()

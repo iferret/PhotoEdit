@@ -33,6 +33,8 @@ class PEImageViewController: UIViewController {
     
     /// Optional<PEImageViewControllerDelegate>
     internal weak var delegate: Optional<PEImageViewControllerDelegate> = .none
+    /// Bool
+    internal override var prefersStatusBarHidden: Bool { true }
     
     // MARK: 私有属性
     
@@ -146,9 +148,17 @@ extension PEImageViewController {
         // 布局
         view.addSubview(imgView)
         imgView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(50.0)
             $0.left.right.equalTo(view.safeAreaLayoutGuide)
             $0.height.equalTo(view.safeAreaLayoutGuide.snp.width).multipliedBy(uiImage.size.height / uiImage.size.width)
+            if UIApplication.shared.hub.safeAreaInsets.bottom <= 0.0 {
+                if UIDevice.current.userInterfaceIdiom == .pad {
+                    $0.top.equalTo(view)
+                } else {
+                    $0.top.equalTo(view.safeAreaLayoutGuide)
+                }
+            } else {
+                $0.top.equalTo(view.safeAreaLayoutGuide).offset(50.0)
+            }
         }
         
         view.addSubview(bottomView)

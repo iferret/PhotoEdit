@@ -36,6 +36,8 @@ class PECameraViewController: UIViewController {
     
     /// Optional<PECameraViewControllerDelegate>
     internal weak var delegate: Optional<PECameraViewControllerDelegate> = .none
+    /// Bool
+    internal override var prefersStatusBarHidden: Bool { true }
     
     // MARK: 私有属性
     
@@ -272,24 +274,32 @@ extension PECameraViewController {
         // 布局
         view.addSubview(previewView)
         previewView.snp.makeConstraints {
-            if view.safeAreaInsets.bottom == 0.0 {
-                $0.top.equalTo(view.safeAreaLayoutGuide)
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                $0.edges.equalTo(view)
             } else {
-                $0.top.equalTo(view.safeAreaLayoutGuide).offset(50.0)
+                if UIApplication.shared.hub.safeAreaInsets.bottom <= 0.0 {
+                    $0.top.equalTo(view.safeAreaLayoutGuide)
+                } else {
+                    $0.top.equalTo(view.safeAreaLayoutGuide).offset(50.0)
+                }
+                $0.left.right.equalTo(view.safeAreaLayoutGuide)
+                $0.height.equalTo(view.bounds.width * (4.0 / 3.0))
             }
-            $0.left.right.equalTo(view.safeAreaLayoutGuide)
-            $0.height.equalTo(view.bounds.width * (4.0 / 3.0))
         }
         
         view.addSubview(lineView)
         lineView.snp.makeConstraints {
             $0.left.right.equalTo(view.safeAreaLayoutGuide)
-            if view.safeAreaInsets.bottom == 0.0 {
-                $0.top.equalTo(view.safeAreaLayoutGuide).offset(view.bounds.width / 0.75)
-            } else {
-                $0.top.equalTo(view.safeAreaLayoutGuide).offset(view.bounds.width / 0.75 + 50.0)
-            }
             $0.height.equalTo(0.0)
+            if UIDevice.current.userInterfaceIdiom == .pad {
+                $0.bottom.equalToSuperview().offset(-144.0)
+            } else {
+                if UIApplication.shared.hub.safeAreaInsets.bottom <= 0.0 {
+                    $0.top.equalTo(view.safeAreaLayoutGuide).offset(view.bounds.width / 0.75)
+                } else {
+                    $0.top.equalTo(view.safeAreaLayoutGuide).offset(view.bounds.width / 0.75 + 50.0)
+                }
+            }
         }
         
         view.addSubview(presetView)
@@ -758,13 +768,15 @@ extension PECameraViewController: PEPresetViewDelegate {
                     this.mediaType = .video
                     this.reloadWith(this.videoInput)
                     this.reloadWith(torchMode: .off)
-                    this.previewView.snp.updateConstraints {
-                        if this.view.safeAreaInsets.bottom == 0.0 {
-                            $0.top.equalTo(this.view.safeAreaLayoutGuide)
-                        } else {
-                            $0.top.equalTo(this.view.safeAreaLayoutGuide).offset(16.0)
+                    if UIDevice.current.userInterfaceIdiom == .phone {
+                        this.previewView.snp.updateConstraints {
+                            if UIApplication.shared.hub.safeAreaInsets.bottom <= 0.0 {
+                                $0.top.equalTo(this.view.safeAreaLayoutGuide)
+                            } else {
+                                $0.top.equalTo(this.view.safeAreaLayoutGuide).offset(16.0)
+                            }
+                            $0.height.equalTo(this.view.bounds.width * (16.0 / 9.0))
                         }
-                        $0.height.equalTo(this.view.bounds.width * (16.0 / 9.0))
                     }
                     this.recordBtn.isHidden = false
                     this.takeBtn.isHidden = true
@@ -783,13 +795,15 @@ extension PECameraViewController: PEPresetViewDelegate {
                     this.mediaType = .photo
                     this.reloadWith(this.videoInput)
                     this.reloadWith(flashMode: .auto)
-                    this.previewView.snp.updateConstraints { 
-                        if this.view.safeAreaInsets.bottom == 0.0 {
-                            $0.top.equalTo(this.view.safeAreaLayoutGuide)
-                        } else {
-                            $0.top.equalTo(this.view.safeAreaLayoutGuide).offset(50.0)
+                    if UIDevice.current.userInterfaceIdiom == .phone {
+                        this.previewView.snp.updateConstraints {
+                            if UIApplication.shared.hub.safeAreaInsets.bottom <= 0.0 {
+                                $0.top.equalTo(this.view.safeAreaLayoutGuide)
+                            } else {
+                                $0.top.equalTo(this.view.safeAreaLayoutGuide).offset(50.0)
+                            }
+                            $0.height.equalTo(this.view.bounds.width * (4.0 / 3.0))
                         }
-                        $0.height.equalTo(this.view.bounds.width * (4.0 / 3.0))
                     }
                     this.recordBtn.isHidden = true
                     this.takeBtn.isHidden = false
