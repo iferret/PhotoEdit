@@ -578,4 +578,9 @@ extension ZLPhotoBrowserWrapper where Base: UIImage {
         }
         return newImage
     }
+    
+    /// CGFloat
+    public var widthAndHeight: CGFloat {
+        return base.size.width / base.size.height
+    }
 }

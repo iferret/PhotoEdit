@@ -272,7 +272,11 @@ extension PECameraViewController {
         // 布局
         view.addSubview(previewView)
         previewView.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(50.0)
+            if view.safeAreaInsets.bottom == 0.0 {
+                $0.top.equalTo(view.safeAreaLayoutGuide)
+            } else {
+                $0.top.equalTo(view.safeAreaLayoutGuide).offset(50.0)
+            }
             $0.left.right.equalTo(view.safeAreaLayoutGuide)
             $0.height.equalTo(view.bounds.width * (4.0 / 3.0))
         }
@@ -280,7 +284,11 @@ extension PECameraViewController {
         view.addSubview(lineView)
         lineView.snp.makeConstraints {
             $0.left.right.equalTo(view.safeAreaLayoutGuide)
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(view.bounds.width / 0.75 + 50.0)
+            if view.safeAreaInsets.bottom == 0.0 {
+                $0.top.equalTo(view.safeAreaLayoutGuide).offset(view.bounds.width / 0.75)
+            } else {
+                $0.top.equalTo(view.safeAreaLayoutGuide).offset(view.bounds.width / 0.75 + 50.0)
+            }
             $0.height.equalTo(0.0)
         }
         
@@ -751,7 +759,11 @@ extension PECameraViewController: PEPresetViewDelegate {
                     this.reloadWith(this.videoInput)
                     this.reloadWith(torchMode: .off)
                     this.previewView.snp.updateConstraints {
-                        $0.top.equalTo(this.view.safeAreaLayoutGuide).offset(16.0)
+                        if this.view.safeAreaInsets.bottom == 0.0 {
+                            $0.top.equalTo(this.view.safeAreaLayoutGuide)
+                        } else {
+                            $0.top.equalTo(this.view.safeAreaLayoutGuide).offset(16.0)
+                        }
                         $0.height.equalTo(this.view.bounds.width * (16.0 / 9.0))
                     }
                     this.recordBtn.isHidden = false
@@ -772,7 +784,11 @@ extension PECameraViewController: PEPresetViewDelegate {
                     this.reloadWith(this.videoInput)
                     this.reloadWith(flashMode: .auto)
                     this.previewView.snp.updateConstraints { 
-                        $0.top.equalTo(this.view.safeAreaLayoutGuide).offset(50.0)
+                        if this.view.safeAreaInsets.bottom == 0.0 {
+                            $0.top.equalTo(this.view.safeAreaLayoutGuide)
+                        } else {
+                            $0.top.equalTo(this.view.safeAreaLayoutGuide).offset(50.0)
+                        }
                         $0.height.equalTo(this.view.bounds.width * (4.0 / 3.0))
                     }
                     this.recordBtn.isHidden = true

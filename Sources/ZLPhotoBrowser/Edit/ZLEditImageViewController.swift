@@ -1146,7 +1146,7 @@ open class ZLEditImageViewController: UIViewController {
     
     /// doneActionHandler
     /// - Parameter block: @escaping (_ newImage: UIImage) -> Void
-    public func doneActionHandler(_ block: @escaping (_ newImage: UIImage) -> Void) {
+    public func doneActionHandler(origiImage: UIImage, _ block: @escaping (_ newImage: UIImage) -> Void) {
         var stickerStates: [ZLBaseStickertState] = []
         for view in stickersContainer.subviews {
             guard let view = view as? ZLBaseStickerView else { continue }
@@ -1167,7 +1167,13 @@ open class ZLEditImageViewController: UIViewController {
         var editModel: ZLEditImageModel?
         
         guard hasEdit == true else {
-            resImage = resImage.zl.compressWith(UIScreen.main.bounds.size)
+            let size: CGSize
+            if resImage.zl.widthAndHeight != origiImage.zl.widthAndHeight {
+                size = UIScreen.main.bounds.size
+            } else {
+                size = origiImage.size
+            }
+            resImage = resImage.zl.compressWith(size)
             block(resImage)
             return
         }
@@ -1178,7 +1184,13 @@ open class ZLEditImageViewController: UIViewController {
             newImage = newImage.zl.clipImage(angle: this.currentClipStatus.angle,
                                              editRect: this.currentClipStatus.editRect,
                                              isCircle: this.currentClipStatus.ratio?.isCircle ?? false)
-            newImage = newImage.zl.compressWith(UIScreen.main.bounds.size)
+            let size: CGSize
+            if newImage.zl.widthAndHeight != origiImage.zl.widthAndHeight {
+                size = UIScreen.main.bounds.size
+            } else {
+                size = origiImage.size
+            }
+            newImage = newImage.zl.compressWith(size)
             // hud.hide()
             block(newImage)
         }

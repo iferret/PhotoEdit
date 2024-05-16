@@ -228,7 +228,7 @@ extension PEDrawImageViewController {
             controllers.append(controller)
             navigationController?.setViewControllers(controllers, animated: false)
         case confirmItem: // 完成操作
-            doneActionHandler {[weak self] newImage in
+            doneActionHandler(origiImage: originImage) {[weak self] newImage in
                 DispatchQueue.global().async {
                     do {
                         let newImage: UIImage = try newImage.hub.compressImage(toByte: PEConfiguration.default().maxImageBytes)

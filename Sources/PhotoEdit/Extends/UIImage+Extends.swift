@@ -72,6 +72,11 @@ extension CompatibleWrapper where Base: UIImage {
 
 extension CompatibleWrapper where Base: UIImage {
     
+    /// CGFloat
+    internal var widthAndHeight: CGFloat {
+        return base.size.width / base.size.height
+    }
+    
     /// jpegData data
     /// - Parameter compressionQuality: CGFloat
     /// - Returns: Data
