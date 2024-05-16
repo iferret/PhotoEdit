@@ -26,13 +26,6 @@ extension PhotoEditViewControllerDelegate {
 public class PhotoEditViewController: UINavigationController {
     
     // MARK: 公开属性
-    
-    /// Bool
-    public override var shouldAutorotate: Bool { false }
-    /// UIInterfaceOrientationMask
-    public override var supportedInterfaceOrientations: UIInterfaceOrientationMask { .portrait }
-    /// UIInterfaceOrientation
-    public override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation { .portrait }
     /// SourceType
     public let sourceType: SourceType
     /// Optional<PhotoEditViewControllerDelegate>

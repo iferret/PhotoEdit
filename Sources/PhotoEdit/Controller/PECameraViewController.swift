@@ -246,6 +246,19 @@ class PECameraViewController: UIViewController {
             session.hub.startRunning()
         }
     }
+    
+    /// viewWillTransition
+    /// - Parameters:
+    ///   - size: CGSize
+    ///   - coordinator: UIViewControllerTransitionCoordinator
+    internal override func viewWillTransition(to size: CGSize, with coordinator: any UIViewControllerTransitionCoordinator) {
+        coordinator.animate(alongsideTransition: .none) {[weak self] _ in
+            guard let this = self else { return }
+            this.presetView.setNeedsLayout()
+            this.presetView.layoutIfNeeded()
+        }
+        super.viewWillTransition(to: size, with: coordinator)
+    }
    
     deinit {
         timer?.invalidate()

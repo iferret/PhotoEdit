@@ -80,6 +80,8 @@ class PEPresetView: UIView {
                 let indexPath: IndexPath = .init(item: items.count - 1, section: 0)
                 collectionView.selectItem(at: indexPath, animated: false, scrollPosition: .centeredHorizontally)
             }
+        } else if let indxPath: IndexPath = collectionView.indexPathsForSelectedItems?.first {
+            collectionView.scrollToItem(at: indxPath, at: .centeredHorizontally, animated: false)
         }
     }
 }
