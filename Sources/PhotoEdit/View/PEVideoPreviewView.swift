@@ -112,6 +112,7 @@ class PEVideoPreviewView: UIView {
                 observation = coordinator.observe(\.videoRotationAngleForHorizonLevelPreview, options: .new) {[weak self] _, change in
                     guard let this = self, let newValue: CGFloat = change.newValue else { return }
                     this.videoRotationAngle = newValue
+                    this.previewLayer.connection?.videoRotationAngle = newValue
                     xprint("videoRotationAngle =>", newValue)
                 }
             } else {
@@ -127,6 +128,7 @@ class PEVideoPreviewView: UIView {
                         } else {
                             this.videoOrientation = x >= 0.0 ? .landscapeLeft : .landscapeRight
                         }
+                        this.previewLayer.connection?.videoOrientation = this.videoOrientation
                     }
                 }
             }
