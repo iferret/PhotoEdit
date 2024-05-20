@@ -598,8 +598,8 @@ extension PECameraViewController {
         switch mediaType {
         case .video:
             session.beginConfiguration()
-            if session.canSetSessionPreset(.hd1920x1080) == true {
-                session.sessionPreset = .hd1920x1080
+            if session.canSetSessionPreset(.high) == true {
+                session.sessionPreset = .high
             }
             // 添加视频采集设备
             var obj: AVCaptureDevice.DiscoverySession = .init(deviceTypes: [.builtInDualCamera, .builtInWideAngleCamera], mediaType: .video, position: position)
@@ -778,7 +778,7 @@ extension PECameraViewController: PEPresetViewDelegate {
     ///   - sender: PEPresetItem
     internal func presetView(_ presetView: PEPresetView, selectedActionHandler sender: PEPresetItem) {
         switch sender {
-        case .video where session.sessionPreset == .photo && session.canSetSessionPreset(.hd1920x1080) == true:
+        case .video where session.sessionPreset == .photo && session.canSetSessionPreset(.high) == true:
             (navigationController ?? self).view.isUserInteractionEnabled = false
             DispatchQueue.global().async {[weak self] in
                 guard let this = self else { return }
@@ -805,7 +805,7 @@ extension PECameraViewController: PEPresetViewDelegate {
                 }
             }
             
-        case .photo where session.sessionPreset == .hd1920x1080:
+        case .photo where session.sessionPreset == .high:
             (navigationController ?? self).view.isUserInteractionEnabled = false
             DispatchQueue.global().async {[weak self] in
                 guard let this = self else { return }
