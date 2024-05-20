@@ -47,7 +47,16 @@ class PEVideoPreviewView: UIView {
     /// Optional<PEVideoPreviewViewDelegate>
     internal weak var delegate: Optional<PEVideoPreviewViewDelegate> = .none
     /// AVCaptureVideoOrientation
-    internal private(set) var videoOrientation: AVCaptureVideoOrientation = .portrait
+    internal var videoOrientation: AVCaptureVideoOrientation {
+        get { previewLayer.connection?.videoOrientation ?? .portrait }
+        set {
+            if #available(iOS 17.0, *) {} else {
+                if previewLayer.connection?.isVideoOrientationSupported == true {
+                    previewLayer.connection?.videoOrientation = newValue
+                }
+            }
+        }
+    }
     /// CGFloat
     internal private(set) var videoRotationAngle: CGFloat = 0.0
     
@@ -92,48 +101,29 @@ class PEVideoPreviewView: UIView {
     /// - Parameter newWindow: UIWindow
     internal override func willMove(toWindow newWindow: UIWindow?) {
         super.willMove(toWindow: newWindow)
-        if newWindow == .none {
-            if #available(iOS 17.0, *) {
+        if #available(iOS 17.0, *) {
+            if newWindow == .none {
                 coordinator = .none
                 observation?.invalidate()
                 observation = .none
             } else {
-                motionManger?.stopDeviceMotionUpdates()
-                motionManger = .none
-            }
-        } else {
-            if #available(iOS 17.0, *) {
-                guard let inputs: Array<AVCaptureDeviceInput> = session?.hub.inputs(),
-                      let first = inputs.first(where: { $0.device.hasMediaType(.video) == true })
-                else { return }
-                let coordinator: AVCaptureDevice.RotationCoordinator = .init(device: first.device, previewLayer: previewLayer)
-                self.coordinator = coordinator
-                videoRotationAngle = coordinator.videoRotationAngleForHorizonLevelPreview
-                observation = coordinator.observe(\.videoRotationAngleForHorizonLevelPreview, options: .new) {[weak self] _, change in
-                    guard let this = self, let newValue: CGFloat = change.newValue else { return }
-                    this.videoRotationAngle = newValue
-                    this.previewLayer.connection?.videoRotationAngle = newValue
-                    xprint("videoRotationAngle =>", newValue)
-                }
-            } else {
-                motionManger = .init()
-                motionManger?.deviceMotionUpdateInterval = 0.5
-                if motionManger?.isDeviceMotionAvailable == true {
-                    motionManger?.startDeviceMotionUpdates(to: .main) {[weak self] motion, _ in
-                        guard let this = self, let motion = motion else { return }
-                        let x = motion.gravity.x
-                        let y = motion.gravity.y
-                        if abs(y) >= abs(x) || abs(x) < 0.45 {
-                            this.videoOrientation = y >= 0.45 ? .portraitUpsideDown : .portrait
-                        } else {
-                            this.videoOrientation = x >= 0.0 ? .landscapeLeft : .landscapeRight
+                if let inputs: Array<AVCaptureDeviceInput> = session?.hub.inputs(), let first = inputs.first(where: { $0.device.hasMediaType(.video) == true }) {
+                    let coordinator: AVCaptureDevice.RotationCoordinator = .init(device: first.device, previewLayer: previewLayer)
+                    self.coordinator = coordinator
+                    videoRotationAngle = coordinator.videoRotationAngleForHorizonLevelPreview
+                    observation = coordinator.observe(\.videoRotationAngleForHorizonLevelPreview, options: .new) {[weak self] _, change in
+                        guard let this = self, let newValue: CGFloat = change.newValue else { return }
+                        this.videoRotationAngle = newValue
+                        if this.previewLayer.connection?.isVideoRotationAngleSupported(newValue) == true {
+                            this.previewLayer.connection?.videoRotationAngle = newValue
+                            xprint("videoRotationAngle =>", newValue)
                         }
-                        this.previewLayer.connection?.videoOrientation = this.videoOrientation
                     }
                 }
             }
         }
     }
+    
     
 }
 

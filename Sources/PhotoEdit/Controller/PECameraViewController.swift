@@ -258,6 +258,10 @@ class PECameraViewController: UIViewController {
             this.presetView.layoutIfNeeded()
         }
         super.viewWillTransition(to: size, with: coordinator)
+        // next
+        if let videoOrientation: AVCaptureVideoOrientation = UIDevice.current.orientation.hub.videoOrientation {
+            previewView.videoOrientation = videoOrientation
+        }
     }
    
     deinit {
