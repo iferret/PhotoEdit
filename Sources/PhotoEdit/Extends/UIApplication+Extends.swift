@@ -52,4 +52,9 @@ extension CompatibleWrapper where Base: UIApplication {
         let connectedScenes: [UIWindowScene] = base.connectedScenes.compactMap { $0 as? UIWindowScene }
         return connectedScenes.first(where: { $0.statusBarManager != nil })?.statusBarManager?.statusBarFrame ?? .zero
     }
+    
+    /// UIInterfaceOrientation
+    internal var interfaceOrientation: UIInterfaceOrientation {
+        return base.hub.keyWindow?.windowScene?.interfaceOrientation ?? .portrait
+    }
 }

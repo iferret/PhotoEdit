@@ -212,6 +212,10 @@ class PECameraViewController: UIViewController {
                     this.reloadWith(this.videoInput)
                     // 开启设备
                     this.session.hub.startRunning()
+                    // next
+                    if let videoOrientation: AVCaptureVideoOrientation = UIApplication.shared.hub.interfaceOrientation.hub.videoOrientation {
+                        this.previewView.videoOrientation = videoOrientation
+                    }
                     // 标记
                     this.isReady = true
                 } catch {
@@ -256,12 +260,11 @@ class PECameraViewController: UIViewController {
             guard let this = self else { return }
             this.presetView.setNeedsLayout()
             this.presetView.layoutIfNeeded()
+            if let videoOrientation: AVCaptureVideoOrientation = UIApplication.shared.hub.interfaceOrientation.hub.videoOrientation {
+                this.previewView.videoOrientation = videoOrientation
+            }
         }
         super.viewWillTransition(to: size, with: coordinator)
-        // next
-        if let videoOrientation: AVCaptureVideoOrientation = UIDevice.current.orientation.hub.videoOrientation {
-            previewView.videoOrientation = videoOrientation
-        }
     }
    
     deinit {
