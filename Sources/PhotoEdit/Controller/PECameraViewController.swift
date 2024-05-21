@@ -125,7 +125,7 @@ class PECameraViewController: UIViewController {
     }()
     
     /// 切换摄像头
-    private var reverseBtn: UIButton = {
+    private lazy var reverseBtn: UIButton = {
         let _button: UIButton = .init(type: .custom)
         _button.setBackgroundImage(.moduleImage("camera_reverse"), for: .normal)
         _button.addTarget(self, action: #selector(buttonActionHandler(_:)), for: .touchUpInside)
